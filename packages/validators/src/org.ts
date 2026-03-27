@@ -8,6 +8,7 @@ export const createOrgSchema = z.object({
     .max(63)
     .regex(/^[a-z0-9-]+$/, "Slug must be lowercase alphanumeric with hyphens"),
   logoUrl: z.string().url().optional(),
+  currency: z.string().length(3).optional(),
 });
 
 export const updateOrgSchema = createOrgSchema.partial();

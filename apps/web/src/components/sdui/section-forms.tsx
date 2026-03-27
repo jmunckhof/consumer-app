@@ -1,0 +1,285 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTRPC } from "../../utils/trpc";
+import { Field, FieldGroup } from "../field";
+import type {
+  SectionConfig,
+  HeroBannerConfig,
+  CategoryGridConfig,
+  ProductCarouselConfig,
+  ProductGridConfig,
+  TextBlockConfig,
+  ImageBannerConfig,
+} from "@repo/validators";
+
+// ---------------------------------------------------------------------------
+// Per-section config forms
+// ---------------------------------------------------------------------------
+
+function HeroBannerForm({
+  value,
+  onChange,
+}: {
+  value: HeroBannerConfig;
+  onChange: (v: HeroBannerConfig) => void;
+}) {
+  return (
+    <FieldGroup>
+      <Field label="Image URL">
+        <input
+          value={value.imageUrl}
+          onChange={(e) => onChange({ ...value, imageUrl: e.target.value })}
+          placeholder="https://example.com/banner.jpg"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Title (optional)">
+          <input
+            value={value.title ?? ""}
+            onChange={(e) => onChange({ ...value, title: e.target.value || undefined })}
+            placeholder="Welcome!"
+            className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+          />
+        </Field>
+        <Field label="Subtitle (optional)">
+          <input
+            value={value.subtitle ?? ""}
+            onChange={(e) => onChange({ ...value, subtitle: e.target.value || undefined })}
+            placeholder="Shop our latest collection"
+            className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+          />
+        </Field>
+      </div>
+    </FieldGroup>
+  );
+}
+
+function CategoryGridForm({
+  value,
+  onChange,
+  orgId,
+}: {
+  value: CategoryGridConfig;
+  onChange: (v: CategoryGridConfig) => void;
+  orgId: string;
+}) {
+  return (
+    <FieldGroup>
+      <Field label="Title (optional)">
+        <input
+          value={value.title ?? ""}
+          onChange={(e) => onChange({ ...value, title: e.target.value || undefined })}
+          placeholder="Shop by Category"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <Field label="Max items" description="Leave empty to show all.">
+        <input
+          type="number"
+          min="1"
+          max="20"
+          value={value.maxItems ?? ""}
+          onChange={(e) => onChange({ ...value, maxItems: e.target.value ? Number(e.target.value) : undefined })}
+          className="w-32 rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+    </FieldGroup>
+  );
+}
+
+function ProductCarouselForm({
+  value,
+  onChange,
+  orgId,
+}: {
+  value: ProductCarouselConfig;
+  onChange: (v: ProductCarouselConfig) => void;
+  orgId: string;
+}) {
+  const trpc = useTRPC();
+  const { data: categories } = useQuery(trpc.category.list.queryOptions({ orgId }));
+
+  return (
+    <FieldGroup>
+      <Field label="Section Title">
+        <input
+          value={value.title}
+          onChange={(e) => onChange({ ...value, title: e.target.value })}
+          required
+          placeholder="New Arrivals"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Category filter" description="Show products from a specific category.">
+          <select
+            value={value.categoryId ?? ""}
+            onChange={(e) => onChange({ ...value, categoryId: e.target.value || undefined })}
+            className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+          >
+            <option value="">All products</option>
+            {categories?.map((cat) => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Max items">
+          <input
+            type="number"
+            min="1"
+            max="20"
+            value={value.maxItems ?? 10}
+            onChange={(e) => onChange({ ...value, maxItems: Number(e.target.value) || 10 })}
+            className="w-32 rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+          />
+        </Field>
+      </div>
+    </FieldGroup>
+  );
+}
+
+function ProductGridForm({
+  value,
+  onChange,
+  orgId,
+}: {
+  value: ProductGridConfig;
+  onChange: (v: ProductGridConfig) => void;
+  orgId: string;
+}) {
+  const trpc = useTRPC();
+  const { data: categories } = useQuery(trpc.category.list.queryOptions({ orgId }));
+
+  return (
+    <FieldGroup>
+      <Field label="Title (optional)">
+        <input
+          value={value.title ?? ""}
+          onChange={(e) => onChange({ ...value, title: e.target.value || undefined })}
+          placeholder="All Products"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Category filter">
+          <select
+            value={value.categoryId ?? ""}
+            onChange={(e) => onChange({ ...value, categoryId: e.target.value || undefined })}
+            className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+          >
+            <option value="">All products</option>
+            {categories?.map((cat) => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Max items">
+          <input
+            type="number"
+            min="1"
+            max="50"
+            value={value.maxItems ?? 10}
+            onChange={(e) => onChange({ ...value, maxItems: Number(e.target.value) || 10 })}
+            className="w-32 rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+          />
+        </Field>
+      </div>
+    </FieldGroup>
+  );
+}
+
+function TextBlockForm({
+  value,
+  onChange,
+}: {
+  value: TextBlockConfig;
+  onChange: (v: TextBlockConfig) => void;
+}) {
+  return (
+    <FieldGroup>
+      <Field label="Title (optional)">
+        <input
+          value={value.title ?? ""}
+          onChange={(e) => onChange({ ...value, title: e.target.value || undefined })}
+          placeholder="About Us"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <Field label="Body">
+        <textarea
+          value={value.body}
+          onChange={(e) => onChange({ ...value, body: e.target.value })}
+          rows={4}
+          placeholder="Write your content here..."
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+    </FieldGroup>
+  );
+}
+
+function ImageBannerForm({
+  value,
+  onChange,
+}: {
+  value: ImageBannerConfig;
+  onChange: (v: ImageBannerConfig) => void;
+}) {
+  return (
+    <FieldGroup>
+      <Field label="Image URL">
+        <input
+          value={value.imageUrl}
+          onChange={(e) => onChange({ ...value, imageUrl: e.target.value })}
+          placeholder="https://example.com/promo.jpg"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <Field label="Alt text (optional)">
+        <input
+          value={value.alt ?? ""}
+          onChange={(e) => onChange({ ...value, alt: e.target.value || undefined })}
+          placeholder="Spring sale banner"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+    </FieldGroup>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Exhaustive form dispatcher
+// ---------------------------------------------------------------------------
+
+type FormProps<T extends SectionConfig = SectionConfig> = {
+  value: T;
+  onChange: (v: T) => void;
+  orgId: string;
+};
+
+const SECTION_FORMS: {
+  [K in SectionConfig["type"]]: React.ComponentType<
+    FormProps<Extract<SectionConfig, { type: K }>>
+  >;
+} = {
+  "hero-banner": HeroBannerForm as any,
+  "category-grid": CategoryGridForm as any,
+  "product-carousel": ProductCarouselForm as any,
+  "product-grid": ProductGridForm as any,
+  "text-block": TextBlockForm as any,
+  "image-banner": ImageBannerForm as any,
+};
+
+export function SectionConfigForm({
+  value,
+  onChange,
+  orgId,
+}: {
+  value: SectionConfig;
+  onChange: (v: SectionConfig) => void;
+  orgId: string;
+}) {
+  const Form = SECTION_FORMS[value.type] as React.ComponentType<FormProps>;
+  return <Form value={value} onChange={onChange} orgId={orgId} />;
+}

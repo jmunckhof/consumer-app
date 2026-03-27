@@ -9,6 +9,7 @@ import { appsRoutes } from "./admin/routes/apps";
 import { productsRoutes } from "./admin/routes/products";
 import { catalogRoutes } from "./consumer/routes/catalog";
 import { profileRoutes } from "./consumer/routes/profile";
+import { storeRoutes } from "./public/routes/store";
 import { appRouter } from "@repo/trpc";
 import { createContext } from "./trpc/context";
 
@@ -17,7 +18,7 @@ const app = new Hono();
 app.use(
   "/*",
   cors({
-    origin: ["http://localhost:3001"],
+    origin: ["http://localhost:3001", "http://localhost:8081", "http://localhost:19006"],
     credentials: true,
   })
 );
@@ -51,7 +52,10 @@ app.route("/api/admin/orgs", orgsRoutes);
 app.route("/api/admin/orgs", appsRoutes);
 app.route("/api/admin/orgs", productsRoutes);
 
-// Consumer routes
+// Public store API (no auth required)
+app.route("/api/store", storeRoutes);
+
+// Consumer routes (auth required)
 app.route("/api/consumer/catalog", catalogRoutes);
 app.route("/api/consumer/profile", profileRoutes);
 

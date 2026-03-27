@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { pageLayoutSchema } from "./sdui";
 
 export const appConfigSchema = z.object({
   theme: z
@@ -13,6 +14,11 @@ export const appConfigSchema = z.object({
       cart: z.boolean().optional(),
       wishlist: z.boolean().optional(),
       reviews: z.boolean().optional(),
+    })
+    .optional(),
+  pages: z
+    .object({
+      home: pageLayoutSchema,
     })
     .optional(),
 });

@@ -363,10 +363,36 @@ function OrgSidebarBody({
         >
           Products
         </SidebarLink>
+        <SidebarLink
+          to={`${base}/categories` as any}
+          current={pathname.startsWith(`${base}/categories`)}
+          icon={
+            <svg viewBox="0 0 20 20" fill="currentColor" className="size-5">
+              <path
+                fillRule="evenodd"
+                d="M4.25 2A2.25 2.25 0 0 0 2 4.25v2.5A2.25 2.25 0 0 0 4.25 9h2.5A2.25 2.25 0 0 0 9 6.75v-2.5A2.25 2.25 0 0 0 6.75 2h-2.5Zm0 9A2.25 2.25 0 0 0 2 13.25v2.5A2.25 2.25 0 0 0 4.25 18h2.5A2.25 2.25 0 0 0 9 15.75v-2.5A2.25 2.25 0 0 0 6.75 11h-2.5Zm9-9A2.25 2.25 0 0 0 11 4.25v2.5A2.25 2.25 0 0 0 13.25 9h2.5A2.25 2.25 0 0 0 18 6.75v-2.5A2.25 2.25 0 0 0 15.75 2h-2.5Zm0 9A2.25 2.25 0 0 0 11 13.25v2.5A2.25 2.25 0 0 0 13.25 18h2.5A2.25 2.25 0 0 0 18 15.75v-2.5A2.25 2.25 0 0 0 15.75 11h-2.5Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          }
+        >
+          Categories
+        </SidebarLink>
       </div>
 
       <div className="mt-8 flex flex-col gap-0.5">
         <SidebarHeading>App Settings</SidebarHeading>
+        <SidebarLink
+          to={`${base}/page-builder` as any}
+          current={pathname.startsWith(`${base}/page-builder`)}
+          icon={
+            <svg viewBox="0 0 20 20" fill="currentColor" className="size-5">
+              <path d="M2 4.25A2.25 2.25 0 0 1 4.25 2h11.5A2.25 2.25 0 0 1 18 4.25v8.5A2.25 2.25 0 0 1 15.75 15h-3.105a3.501 3.501 0 0 0 1.1 1.677A.75.75 0 0 1 13.26 18H6.74a.75.75 0 0 1-.484-1.323A3.501 3.501 0 0 0 7.355 15H4.25A2.25 2.25 0 0 1 2 12.75v-8.5Zm1.5 0a.75.75 0 0 1 .75-.75h11.5a.75.75 0 0 1 .75.75v7.5a.75.75 0 0 1-.75.75H4.25a.75.75 0 0 1-.75-.75v-7.5Z" />
+            </svg>
+          }
+        >
+          Page Builder
+        </SidebarLink>
         <SidebarLink
           to={`${base}/theme` as any}
           current={pathname.startsWith(`${base}/theme`)}
