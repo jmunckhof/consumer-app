@@ -1,34 +1,46 @@
 import React from "react";
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from "react-native";
-import { router } from "expo-router";
+import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import type { ResolvedSection } from "@repo/validators";
-import { useStore } from "../../store-context";
+import { useTheme } from "../../theme";
 
 type Props = Extract<ResolvedSection, { type: "category-grid" }>;
 
 export function CategoryGrid({ title, categories }: Props) {
-  const { primaryColor } = useStore();
+  const { global, categoryCard, sectionHeader } = useTheme();
+
+  const imageRadius =
+    categoryCard.shape === "circle"
+      ? 999
+      : categoryCard.shape === "square"
+        ? 0
+        : categoryCard.borderRadius ?? global.borderRadius;
 
   return (
-    <View style={styles.container}>
-      {title && <Text style={styles.title}>{title}</Text>}
+    <View style={[styles.container, { paddingHorizontal: global.contentPadding }]}>
+      {title && (
+        <Text style={[styles.title, { fontSize: sectionHeader.fontSize, color: global.textColor }]}>
+          {title}
+        </Text>
+      )}
       <View style={styles.grid}>
         {categories.map((cat) => (
-          <TouchableOpacity
-            key={cat.id}
-            style={styles.card}
-            activeOpacity={0.7}
-          >
-            <View style={styles.imageContainer}>
+          <TouchableOpacity key={cat.id} style={styles.card} activeOpacity={0.7}>
+            <View style={[styles.imageContainer, { borderRadius: imageRadius }]}>
               {cat.imageUrl ? (
                 <Image source={{ uri: cat.imageUrl }} style={styles.image} />
               ) : (
-                <View style={[styles.placeholder, { backgroundColor: primaryColor + "15" }]}>
-                  <Text style={styles.placeholderText}>{cat.name.charAt(0)}</Text>
+                <View style={[styles.placeholder, { backgroundColor: global.primaryColor + "15" }]}>
+                  <Text style={[styles.placeholderText, { color: global.textSecondaryColor }]}>
+                    {cat.name.charAt(0)}
+                  </Text>
                 </View>
               )}
             </View>
-            <Text style={styles.name} numberOfLines={1}>{cat.name}</Text>
+            {categoryCard.showLabel && (
+              <Text style={[styles.name, { color: global.textColor, fontSize: global.captionSize + 1 }]} numberOfLines={1}>
+                {cat.name}
+              </Text>
+            )}
           </TouchableOpacity>
         ))}
       </View>
@@ -37,13 +49,13 @@ export function CategoryGrid({ title, categories }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { paddingVertical: 16, paddingHorizontal: 16 },
-  title: { fontSize: 18, fontWeight: "700", color: "#18181b", marginBottom: 12 },
+  container: { paddingVertical: 16 },
+  title: { fontWeight: "700", marginBottom: 12 },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
   card: { width: "47%", alignItems: "center" },
-  imageContainer: { width: "100%", aspectRatio: 1.4, borderRadius: 12, overflow: "hidden", backgroundColor: "#f4f4f5" },
+  imageContainer: { width: "100%", aspectRatio: 1.4, overflow: "hidden", backgroundColor: "#f4f4f5" },
   image: { width: "100%", height: "100%" },
-  placeholder: { flex: 1, alignItems: "center", justifyContent: "center", borderRadius: 12 },
-  placeholderText: { fontSize: 24, fontWeight: "700", color: "#71717a" },
-  name: { fontSize: 13, fontWeight: "600", color: "#18181b", marginTop: 8, textAlign: "center" },
+  placeholder: { flex: 1, alignItems: "center", justifyContent: "center" },
+  placeholderText: { fontSize: 24, fontWeight: "700" },
+  name: { fontWeight: "600", marginTop: 8, textAlign: "center" },
 });

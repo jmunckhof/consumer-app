@@ -1,19 +1,54 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
+import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 import type { ResolvedSection } from "@repo/validators";
+import { useTheme } from "../../theme";
 
 const { width } = Dimensions.get("window");
 
 type Props = Extract<ResolvedSection, { type: "hero-banner" }>;
 
 export function HeroBanner({ imageUrl, title, subtitle }: Props) {
+  const { global, heroBanner } = useTheme();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { height: heroBanner.height }]}>
       <Image source={{ uri: imageUrl }} style={styles.image} />
       {(title || subtitle) && (
-        <View style={styles.overlay}>
-          {title && <Text style={styles.title}>{title}</Text>}
-          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+        <View
+          style={[
+            styles.overlay,
+            heroBanner.overlayGradient && styles.gradient,
+          ]}
+        >
+          {title && (
+            <Text
+              style={[
+                styles.title,
+                {
+                  fontSize: global.headingSize,
+                  color: global.textOnPrimary,
+                  textAlign: heroBanner.textAlign,
+                },
+              ]}
+            >
+              {title}
+            </Text>
+          )}
+          {subtitle && (
+            <Text
+              style={[
+                styles.subtitle,
+                {
+                  fontSize: global.bodySize,
+                  color: global.textOnPrimary,
+                  textAlign: heroBanner.textAlign,
+                  opacity: 0.8,
+                },
+              ]}
+            >
+              {subtitle}
+            </Text>
+          )}
         </View>
       )}
     </View>
@@ -21,7 +56,7 @@ export function HeroBanner({ imageUrl, title, subtitle }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { width, aspectRatio: 16 / 9, backgroundColor: "#f4f4f5" },
+  container: { width, backgroundColor: "#f4f4f5" },
   image: { width: "100%", height: "100%" },
   overlay: {
     position: "absolute",
@@ -30,8 +65,10 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 20,
     paddingBottom: 24,
-    background: "linear-gradient(transparent, rgba(0,0,0,0.6))",
   },
-  title: { fontSize: 22, fontWeight: "700", color: "#fff" },
-  subtitle: { fontSize: 14, color: "rgba(255,255,255,0.8)", marginTop: 4 },
+  gradient: {
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  title: { fontWeight: "700" },
+  subtitle: { marginTop: 4 },
 });

@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../../store-context";
+import { useTheme } from "../../theme";
 import { fetchCategories, fetchProducts, fetchHomePage } from "../../api";
 import { formatPrice } from "../../format";
 import { SDUIRenderer } from "../../sdui/renderer";
@@ -26,7 +27,8 @@ type Product = {
 };
 
 export default function HomeScreen() {
-  const { store, primaryColor, currency } = useStore();
+  const { store, currency } = useStore();
+  const { global: t } = useTheme();
   const [sduiSections, setSduiSections] = useState<ResolvedSection[] | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -70,7 +72,7 @@ export default function HomeScreen() {
         <SDUIRenderer
           sections={sduiSections}
           header={
-            <View style={[styles.header, { backgroundColor: primaryColor }]}>
+            <View style={[styles.header, { backgroundColor: t.primaryColor }]}>
               <Text style={styles.storeName}>{store.name}</Text>
               <Text style={styles.storeTagline}>Browse our collection</Text>
             </View>
@@ -84,7 +86,7 @@ export default function HomeScreen() {
   const header = (
     <>
       {/* Store name header */}
-      <View style={[styles.header, { backgroundColor: primaryColor }]}>
+      <View style={[styles.header, { backgroundColor: t.primaryColor }]}>
         <Text style={styles.storeName}>{store.name}</Text>
         <Text style={styles.storeTagline}>Browse our collection</Text>
       </View>
@@ -106,7 +108,7 @@ export default function HomeScreen() {
               <TouchableOpacity
                 style={[
                   styles.categoryChip,
-                  isActive && { backgroundColor: primaryColor },
+                  isActive && { backgroundColor: t.primaryColor },
                 ]}
                 onPress={() => setSelectedCategory(item.id)}
               >
@@ -130,7 +132,7 @@ export default function HomeScreen() {
     return (
       <View style={styles.container}>
         {header}
-        <ActivityIndicator style={{ marginTop: 40 }} color={primaryColor} />
+        <ActivityIndicator style={{ marginTop: 40 }} color={t.primaryColor} />
       </View>
     );
   }

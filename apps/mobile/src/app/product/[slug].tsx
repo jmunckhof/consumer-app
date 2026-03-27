@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useStore } from "../../store-context";
+import { useTheme } from "../../theme";
 import { fetchProduct } from "../../api";
 import { formatPrice } from "../../format";
 
@@ -34,7 +35,8 @@ type Product = {
 
 export default function ProductScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const { store, primaryColor, currency } = useStore();
+  const { store, currency } = useStore();
+  const { global: t } = useTheme();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
@@ -51,7 +53,7 @@ export default function ProductScreen() {
   if (loading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator color={primaryColor} />
+        <ActivityIndicator color={t.primaryColor} />
       </View>
     );
   }
@@ -61,7 +63,7 @@ export default function ProductScreen() {
       <View style={styles.loader}>
         <Text style={styles.errorText}>Product not found</Text>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={[styles.backLink, { color: primaryColor }]}>Go back</Text>
+          <Text style={[styles.backLink, { color: t.primaryColor }]}>Go back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -106,7 +108,7 @@ export default function ProductScreen() {
                     key={i}
                     style={[
                       styles.dot,
-                      i === activeImage && { backgroundColor: primaryColor, width: 20 },
+                      i === activeImage && { backgroundColor: t.primaryColor, width: 20 },
                     ]}
                   />
                 ))}
@@ -127,7 +129,7 @@ export default function ProductScreen() {
           <Text style={styles.name}>{product.name}</Text>
 
           <View style={styles.priceRow}>
-            <Text style={[styles.price, { color: primaryColor }]}>
+            <Text style={[styles.price, { color: t.primaryColor }]}>
               {formatPrice(product.priceInCents, currency)}
             </Text>
             {product.compareAtPriceInCents && (
@@ -149,7 +151,7 @@ export default function ProductScreen() {
                       key={opt.id}
                       style={[
                         styles.variantChip,
-                        isSelected && { borderColor: primaryColor, backgroundColor: primaryColor + "10" },
+                        isSelected && { borderColor: t.primaryColor, backgroundColor: t.primaryColor + "10" },
                       ]}
                       onPress={() =>
                         setSelectedVariants((prev) => ({ ...prev, [optionName]: opt.value }))
@@ -158,7 +160,7 @@ export default function ProductScreen() {
                       <Text
                         style={[
                           styles.variantChipText,
-                          isSelected && { color: primaryColor, fontWeight: "600" },
+                          isSelected && { color: t.primaryColor, fontWeight: "600" },
                         ]}
                       >
                         {opt.value}

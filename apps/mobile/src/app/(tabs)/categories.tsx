@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../../store-context";
+import { useTheme } from "../../theme";
 import { fetchCategories } from "../../api";
 
 type Category = {
@@ -20,7 +21,8 @@ type Category = {
 };
 
 export default function CategoriesScreen() {
-  const { store, primaryColor } = useStore();
+  const { store } = useStore();
+  const { global: t } = useTheme();
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -66,7 +68,7 @@ export default function CategoriesScreen() {
                 <View
                   style={[
                     styles.imagePlaceholder,
-                    { backgroundColor: primaryColor + "15" },
+                    { backgroundColor: t.primaryColor + "15" },
                   ]}
                 >
                   <Text style={[styles.placeholderEmoji]}>

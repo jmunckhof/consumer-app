@@ -1,14 +1,9 @@
 import { z } from "zod";
 import { pageLayoutSchema } from "./sdui";
+import { appThemeSchema } from "./theme";
 
 export const appConfigSchema = z.object({
-  theme: z
-    .object({
-      primaryColor: z.string().optional(),
-      accentColor: z.string().optional(),
-      darkMode: z.boolean().optional(),
-    })
-    .optional(),
+  theme: appThemeSchema.optional(),
   features: z
     .object({
       cart: z.boolean().optional(),

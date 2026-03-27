@@ -4,3 +4,4 @@ export * from "./category";
 export * from "./product";
 export * from "./product-variant";
 export * from "./sdui";
+export * from "./theme";
