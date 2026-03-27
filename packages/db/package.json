@@ -1,0 +1,20 @@
+{
+  "name": "@repo/db",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45",
+    "postgres": "^3"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30"
+  }
+}

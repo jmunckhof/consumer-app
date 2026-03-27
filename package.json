@@ -1,0 +1,16 @@
+{
+  "name": "consumer-app",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "db:generate": "turbo db:generate --filter=@repo/db",
+    "db:migrate": "turbo db:migrate --filter=@repo/db",
+    "db:push": "turbo db:push --filter=@repo/db"
+  },
+  "devDependencies": {
+    "turbo": "^2",
+    "typescript": "^5.7"
+  }
+}

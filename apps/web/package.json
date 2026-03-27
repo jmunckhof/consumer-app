@@ -1,0 +1,33 @@
+{
+  "name": "@repo/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --port 3001",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@repo/trpc": "workspace:*",
+    "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/react-query": "^5",
+    "@tanstack/react-query-devtools": "^5.95.2",
+    "@tanstack/react-router": "^1",
+    "@tanstack/react-start": "^1",
+    "@trpc/client": "^11",
+    "@trpc/tanstack-react-query": "^11",
+    "better-auth": "^1.5.6",
+    "react": "^19",
+    "react-dom": "^19",
+    "superjson": "^2",
+    "tailwindcss": "^4.2.2",
+    "vite-tsconfig-paths": "^6.1.1"
+  },
+  "devDependencies": {
+    "@tanstack/router-plugin": "^1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4",
+    "vite": "^6",
+    "typescript": "^5.7"
+  }
+}
