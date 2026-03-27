@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -11,91 +11,43 @@ import {
 import { router } from "expo-router";
 import { useStore } from "../../store-context";
 import { useTheme } from "../../theme";
-import { fetchCategories, fetchProducts, fetchHomePage } from "../../api";
+import { useHomePage, useCategories, useProducts } from "../../hooks/use-store-queries";
 import { formatPrice } from "../../format";
 import { SDUIRenderer } from "../../sdui/renderer";
-import type { ResolvedSection } from "@repo/validators";
-
-type Category = { id: string; name: string };
-type Product = {
-  id: string;
-  name: string;
-  slug: string;
-  images: { url: string }[];
-  priceInCents: number;
-  compareAtPriceInCents: number | null;
-};
 
 export default function HomeScreen() {
   const { store, currency } = useStore();
   const { global: t } = useTheme();
-  const [sduiSections, setSduiSections] = useState<ResolvedSection[] | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  // Try to load SDUI page first
-  useEffect(() => {
-    if (!store) return;
-    fetchHomePage(store.slug)
-      .then((page) => {
-        if (page.sections.length > 0) {
-          setSduiSections(page.sections);
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        // No SDUI configured, fall through to legacy
-      });
-  }, [store?.slug]);
-
-  useEffect(() => {
-    if (!store || sduiSections) return;
-    fetchCategories(store.slug).then(setCategories);
-  }, [store?.slug, sduiSections]);
-
-  useEffect(() => {
-    if (!store) return;
-    setLoading(true);
-    fetchProducts(store.slug, selectedCategory ?? undefined)
-      .then(setProducts)
-      .finally(() => setLoading(false));
-  }, [store?.slug, selectedCategory]);
+  const homePage = useHomePage();
+  const categories = useCategories();
+  const products = useProducts({ categoryId: selectedCategory });
 
   if (!store) return null;
 
   // Render SDUI if available
-  if (sduiSections) {
+  const sduiSections = homePage.data?.sections;
+  if (sduiSections && sduiSections.length > 0) {
     return (
-      <View style={styles.container}>
-        <SDUIRenderer
-          sections={sduiSections}
-          header={
-            <View style={[styles.header, { backgroundColor: t.primaryColor }]}>
-              <Text style={styles.storeName}>{store.name}</Text>
-              <Text style={styles.storeTagline}>Browse our collection</Text>
-            </View>
-          }
-        />
+      <View style={[styles.container, { backgroundColor: t.backgroundColor }]}>
+        <SDUIRenderer sections={sduiSections} />
       </View>
     );
   }
 
-  // Legacy fallback — hardcoded UI
+  // Legacy fallback
   const header = (
     <>
-      {/* Store name header */}
       <View style={[styles.header, { backgroundColor: t.primaryColor }]}>
         <Text style={styles.storeName}>{store.name}</Text>
         <Text style={styles.storeTagline}>Browse our collection</Text>
       </View>
 
-      {/* Category chips */}
-      {categories.length > 0 && (
+      {(categories.data?.length ?? 0) > 0 && (
         <FlatList
           horizontal
-          data={[{ id: null as any, name: "All" }, ...categories]}
+          data={[{ id: null as any, name: "All" }, ...(categories.data ?? [])]}
           keyExtractor={(item) => item.id ?? "all"}
           showsHorizontalScrollIndicator={false}
           style={styles.categoryList}
@@ -128,7 +80,7 @@ export default function HomeScreen() {
     </>
   );
 
-  if (loading) {
+  if (products.isLoading && !products.data) {
     return (
       <View style={styles.container}>
         {header}
@@ -140,7 +92,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <FlatList
-        data={products}
+        data={products.data ?? []}
         keyExtractor={(item) => item.id}
         numColumns={2}
         ListHeaderComponent={header}

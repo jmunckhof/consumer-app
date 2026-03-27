@@ -42,9 +42,14 @@ export async function fetchCategories(slug: string) {
   >;
 }
 
-export async function fetchProducts(slug: string, categoryId?: string) {
+export async function fetchProducts(
+  slug: string,
+  opts?: { categoryId?: string; search?: string; limit?: number }
+) {
   const url = new URL(`${API_BASE}/api/store/${slug}/products`);
-  if (categoryId) url.searchParams.set("category", categoryId);
+  if (opts?.categoryId) url.searchParams.set("category", opts.categoryId);
+  if (opts?.search) url.searchParams.set("q", opts.search);
+  if (opts?.limit) url.searchParams.set("limit", String(opts.limit));
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error("Failed to load products");
   return res.json() as Promise<

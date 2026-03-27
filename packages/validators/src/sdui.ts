@@ -13,6 +13,14 @@ export const sduiActionSchema = z.discriminatedUnion("type", [
 // Section CONFIGS — stored in apps.config.pages.home (admin-editable)
 // ---------------------------------------------------------------------------
 
+export const storeHeaderConfigSchema = z.object({
+  type: z.literal("store-header"),
+  showStoreName: z.boolean().default(true),
+  subtitle: z.string().max(200).optional(),
+  showSearch: z.boolean().default(false),
+  showLogo: z.boolean().default(true),
+});
+
 export const heroBannerConfigSchema = z.object({
   type: z.literal("hero-banner"),
   imageUrl: z.string().url(),
@@ -56,6 +64,7 @@ export const imageBannerConfigSchema = z.object({
 });
 
 export const sectionConfigSchema = z.discriminatedUnion("type", [
+  storeHeaderConfigSchema,
   heroBannerConfigSchema,
   categoryGridConfigSchema,
   productCarouselConfigSchema,
@@ -86,6 +95,15 @@ export const resolvedCategorySchema = z.object({
   name: z.string(),
   slug: z.string(),
   imageUrl: z.string().nullable(),
+});
+
+export const resolvedStoreHeaderSchema = z.object({
+  type: z.literal("store-header"),
+  storeName: z.string(),
+  logoUrl: z.string().nullable(),
+  subtitle: z.string().optional(),
+  showSearch: z.boolean(),
+  showLogo: z.boolean(),
 });
 
 export const resolvedHeroBannerSchema = z.object({
@@ -128,6 +146,7 @@ export const resolvedImageBannerSchema = z.object({
 });
 
 export const resolvedSectionSchema = z.discriminatedUnion("type", [
+  resolvedStoreHeaderSchema,
   resolvedHeroBannerSchema,
   resolvedCategoryGridSchema,
   resolvedProductCarouselSchema,
@@ -153,6 +172,7 @@ export type ResolvedProduct = z.infer<typeof resolvedProductSchema>;
 export type ResolvedCategory = z.infer<typeof resolvedCategorySchema>;
 
 // Per-section config types (for admin forms)
+export type StoreHeaderConfig = z.infer<typeof storeHeaderConfigSchema>;
 export type HeroBannerConfig = z.infer<typeof heroBannerConfigSchema>;
 export type CategoryGridConfig = z.infer<typeof categoryGridConfigSchema>;
 export type ProductCarouselConfig = z.infer<typeof productCarouselConfigSchema>;
@@ -165,6 +185,7 @@ export type SectionType = SectionConfig["type"];
 
 // All section types as a const array (for admin UI pickers)
 export const SECTION_TYPES = [
+  "store-header",
   "hero-banner",
   "category-grid",
   "product-carousel",
@@ -174,6 +195,7 @@ export const SECTION_TYPES = [
 ] as const satisfies readonly SectionType[];
 
 export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
+  "store-header": "Store Header",
   "hero-banner": "Hero Banner",
   "category-grid": "Category Grid",
   "product-carousel": "Product Carousel",

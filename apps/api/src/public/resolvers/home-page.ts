@@ -1,10 +1,11 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../lib/db";
-import { categories, products } from "@repo/db/schema";
+import { orgs, categories, products } from "@repo/db/schema";
 import type {
   SectionConfig,
   ResolvedSection,
   ResolvedProduct,
+  StoreHeaderConfig,
   HeroBannerConfig,
   CategoryGridConfig,
   ProductCarouselConfig,
@@ -48,6 +49,20 @@ type Resolver<T extends SectionConfig> = (
 const resolvers: {
   [K in SectionConfig["type"]]: Resolver<Extract<SectionConfig, { type: K }>>;
 } = {
+  "store-header": async (config: StoreHeaderConfig, orgId: string) => {
+    const org = await db.query.orgs.findFirst({
+      where: eq(orgs.id, orgId),
+    });
+    return {
+      type: "store-header" as const,
+      storeName: org?.name ?? "",
+      logoUrl: org?.logoUrl ?? null,
+      subtitle: config.subtitle,
+      showSearch: config.showSearch ?? false,
+      showLogo: config.showLogo ?? true,
+    };
+  },
+
   "hero-banner": async (config: HeroBannerConfig) => ({
     type: "hero-banner" as const,
     imageUrl: config.imageUrl,

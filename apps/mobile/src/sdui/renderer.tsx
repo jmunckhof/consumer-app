@@ -1,6 +1,7 @@
 import React from "react";
 import { FlatList, View } from "react-native";
 import type { ResolvedSection } from "@repo/validators";
+import { StoreHeader } from "./sections/store-header";
 import { HeroBanner } from "./sections/hero-banner";
 import { CategoryGrid } from "./sections/category-grid";
 import { ProductCarousel } from "./sections/product-carousel";
@@ -14,6 +15,7 @@ const SECTION_COMPONENTS: {
     Extract<ResolvedSection, { type: K }>
   >;
 } = {
+  "store-header": StoreHeader,
   "hero-banner": HeroBanner,
   "category-grid": CategoryGrid,
   "product-carousel": ProductCarousel,

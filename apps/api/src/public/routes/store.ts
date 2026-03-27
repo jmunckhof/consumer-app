@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { eq, and } from "drizzle-orm";
+import { eq, and, or, ilike } from "drizzle-orm";
 import { db } from "../../lib/db";
 import { orgs, apps, categories, products, productVariants } from "@repo/db/schema";
 import { resolveHomePage } from "../resolvers/home-page";
@@ -58,6 +58,8 @@ const app = new Hono()
   .get("/:slug/products", async (c) => {
     const { slug } = c.req.param();
     const categoryId = c.req.query("category");
+    const search = c.req.query("q");
+    const limit = Math.min(parseInt(c.req.query("limit") ?? "50"), 100);
 
     const org = await db.query.orgs.findFirst({
       where: and(eq(orgs.slug, slug), eq(orgs.isActive, true)),
@@ -71,6 +73,16 @@ const app = new Hono()
     if (categoryId) {
       conditions.push(eq(products.categoryId, categoryId));
     }
+    if (search) {
+      const pattern = `%${search}%`;
+      conditions.push(
+        or(
+          ilike(products.name, pattern),
+          ilike(products.sku, pattern),
+          ilike(products.slug, pattern)
+        )!
+      );
+    }
 
     const result = await db.query.products.findMany({
       where: and(...conditions),
@@ -79,6 +91,7 @@ const app = new Hono()
         asc(products.sortOrder),
         asc(products.name),
       ],
+      limit,
     });
 
     return c.json(result);

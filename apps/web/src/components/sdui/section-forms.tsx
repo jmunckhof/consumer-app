@@ -4,6 +4,7 @@ import { useTRPC } from "../../utils/trpc";
 import { Field, FieldGroup } from "../field";
 import type {
   SectionConfig,
+  StoreHeaderConfig,
   HeroBannerConfig,
   CategoryGridConfig,
   ProductCarouselConfig,
@@ -15,6 +16,56 @@ import type {
 // ---------------------------------------------------------------------------
 // Per-section config forms
 // ---------------------------------------------------------------------------
+
+function StoreHeaderForm({
+  value,
+  onChange,
+}: {
+  value: StoreHeaderConfig;
+  onChange: (v: StoreHeaderConfig) => void;
+}) {
+  return (
+    <FieldGroup>
+      <Field label="Subtitle" description="Optional text below the store name.">
+        <input
+          value={value.subtitle ?? ""}
+          onChange={(e) => onChange({ ...value, subtitle: e.target.value || undefined })}
+          placeholder="Browse our collection"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <div className="flex flex-col gap-3">
+        <label className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={value.showStoreName ?? true}
+            onChange={(e) => onChange({ ...value, showStoreName: e.target.checked })}
+            className="size-4 rounded border-zinc-300"
+          />
+          <span className="text-sm/6 text-zinc-950 dark:text-white">Show store name</span>
+        </label>
+        <label className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={value.showLogo ?? true}
+            onChange={(e) => onChange({ ...value, showLogo: e.target.checked })}
+            className="size-4 rounded border-zinc-300"
+          />
+          <span className="text-sm/6 text-zinc-950 dark:text-white">Show logo</span>
+        </label>
+        <label className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={value.showSearch ?? false}
+            onChange={(e) => onChange({ ...value, showSearch: e.target.checked })}
+            className="size-4 rounded border-zinc-300"
+          />
+          <span className="text-sm/6 text-zinc-950 dark:text-white">Show search bar</span>
+        </label>
+      </div>
+    </FieldGroup>
+  );
+}
 
 function HeroBannerForm({
   value,
@@ -263,6 +314,7 @@ const SECTION_FORMS: {
     FormProps<Extract<SectionConfig, { type: K }>>
   >;
 } = {
+  "store-header": StoreHeaderForm as any,
   "hero-banner": HeroBannerForm as any,
   "category-grid": CategoryGridForm as any,
   "product-carousel": ProductCarouselForm as any,

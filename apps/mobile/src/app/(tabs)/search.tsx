@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -7,88 +7,75 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { useStore } from "../../store-context";
-import { fetchProducts } from "../../api";
+import { useTheme } from "../../theme";
+import { useSearchProducts } from "../../hooks/use-store-queries";
 import { formatPrice } from "../../format";
 
-type Product = {
-  id: string;
-  name: string;
-  slug: string;
-  images: { url: string }[];
-  priceInCents: number;
-  compareAtPriceInCents: number | null;
-  category: { name: string } | null;
-};
-
 export default function SearchScreen() {
-  const { store, currency } = useStore();
+  const { currency } = useStore();
+  const { global: t } = useTheme();
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Product[]>([]);
-  const [searched, setSearched] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
-  const handleSearch = useCallback(
-    async (text: string) => {
-      setQuery(text);
-      if (!store || text.length < 2) {
-        setResults([]);
-        setSearched(false);
-        return;
-      }
+  const { data: results, isLoading, isFetching } = useSearchProducts(debouncedQuery);
 
-      // Simple client-side: fetch all products and filter
-      // TODO: add server-side search to the public API
-      const all = await fetchProducts(store.slug);
-      const lower = text.toLowerCase();
-      setResults(
-        all.filter(
-          (p: Product) =>
-            p.name.toLowerCase().includes(lower) ||
-            p.slug.includes(lower)
-        )
-      );
-      setSearched(true);
-    },
-    [store?.slug]
-  );
-
-  if (!store) return null;
+  function handleSearch(text: string) {
+    setQuery(text);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      setDebouncedQuery(text);
+    }, 300);
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.headerSection}>
         <Text style={styles.title}>Search</Text>
-        <TextInput
-          style={styles.searchInput}
-          value={query}
-          onChangeText={handleSearch}
-          placeholder="Search products..."
-          placeholderTextColor="#a1a1aa"
-          autoCapitalize="none"
-          autoCorrect={false}
-          clearButtonMode="while-editing"
-        />
+        <View style={styles.searchRow}>
+          <TextInput
+            style={styles.searchInput}
+            value={query}
+            onChangeText={handleSearch}
+            placeholder="Search products..."
+            placeholderTextColor="#a1a1aa"
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+          />
+          {isFetching && (
+            <ActivityIndicator
+              size="small"
+              color={t.primaryColor}
+              style={styles.spinner}
+            />
+          )}
+        </View>
       </View>
 
       <FlatList
-        data={results}
+        data={results ?? []}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
-          searched ? (
+          debouncedQuery.length >= 2 && !isLoading ? (
             <View style={styles.empty}>
-              <Text style={styles.emptyText}>No results for "{query}"</Text>
+              <Text style={styles.emptyText}>
+                No results for "{debouncedQuery}"
+              </Text>
             </View>
-          ) : (
+          ) : debouncedQuery.length < 2 ? (
             <View style={styles.empty}>
               <Text style={styles.emptyEmoji}>🔍</Text>
               <Text style={styles.emptyText}>
                 Start typing to search products
               </Text>
             </View>
-          )
+          ) : null
         }
         renderItem={({ item }) => {
           const heroImage = item.images?.[0]?.url;
@@ -129,7 +116,13 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
   headerSection: { paddingTop: 60, paddingHorizontal: 20, paddingBottom: 12 },
-  title: { fontSize: 28, fontWeight: "700", color: "#18181b", marginBottom: 16 },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#18181b",
+    marginBottom: 16,
+  },
+  searchRow: { position: "relative" },
   searchInput: {
     borderWidth: 1,
     borderColor: "#e4e4e7",
@@ -140,6 +133,7 @@ const styles = StyleSheet.create({
     color: "#09090b",
     backgroundColor: "#fafafa",
   },
+  spinner: { position: "absolute", right: 14, top: 14 },
   list: { paddingHorizontal: 16, paddingTop: 8 },
   row: {
     flexDirection: "row",
@@ -148,9 +142,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#f4f4f5",
   },
-  rowImage: { width: 48, height: 48, borderRadius: 8, overflow: "hidden", backgroundColor: "#f4f4f5" },
+  rowImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    overflow: "hidden",
+    backgroundColor: "#f4f4f5",
+  },
   image: { width: "100%", height: "100%" },
-  imagePlaceholder: { flex: 1, alignItems: "center", justifyContent: "center" },
+  imagePlaceholder: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   rowContent: { flex: 1, marginLeft: 12 },
   rowName: { fontSize: 15, fontWeight: "500", color: "#18181b" },
   rowCategory: { fontSize: 12, color: "#71717a", marginTop: 2 },

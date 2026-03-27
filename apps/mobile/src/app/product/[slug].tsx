@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
 import { useLocalSearchParams, router } from "expo-router";
 import { useStore } from "../../store-context";
 import { useTheme } from "../../theme";
-import { fetchProduct } from "../../api";
+import { useProduct } from "../../hooks/use-store-queries";
 import { formatPrice } from "../../format";
 
 const { width } = Dimensions.get("window");
@@ -35,20 +35,11 @@ type Product = {
 
 export default function ProductScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const { store, currency } = useStore();
+  const { currency } = useStore();
   const { global: t } = useTheme();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: product, isLoading: loading } = useProduct(slug ?? "");
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [activeImage, setActiveImage] = useState(0);
-
-  useEffect(() => {
-    if (!store || !slug) return;
-    setLoading(true);
-    fetchProduct(store.slug, slug)
-      .then(setProduct)
-      .finally(() => setLoading(false));
-  }, [store?.slug, slug]);
 
   if (loading) {
     return (
@@ -78,11 +69,6 @@ export default function ProductScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Back button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backText}>‹ Back</Text>
-      </TouchableOpacity>
-
       <ScrollView>
         {/* Image gallery */}
         {product.images.length > 0 ? (

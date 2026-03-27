@@ -12,6 +12,12 @@ export const Route = createFileRoute("/orgs/$orgId/page-builder")({
 });
 
 const DEFAULT_CONFIGS: Record<SectionType, () => SectionConfig> = {
+  "store-header": () => ({
+    type: "store-header",
+    showStoreName: true,
+    showLogo: true,
+    showSearch: false,
+  }),
   "hero-banner": () => ({
     type: "hero-banner",
     imageUrl: "https://placehold.co/800x400",
