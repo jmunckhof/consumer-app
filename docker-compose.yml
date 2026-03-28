@@ -9,6 +9,58 @@ services:
       POSTGRES_DB: consumer_app
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  # Dev only: push schema to DB before starting the API
+  db-push:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/consumer_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["sh", "-c", "cd packages/db && node /app/node_modules/drizzle-kit/bin.cjs push"]
+    profiles: ["dev"]
+
+  # Prod: run generated migrations before starting the API
+  db-migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/consumer_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["sh", "-c", "cd packages/db && node /app/node_modules/drizzle-kit/bin.cjs migrate"]
+    profiles: ["prod"]
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/consumer_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
 
 volumes:
   pgdata:
