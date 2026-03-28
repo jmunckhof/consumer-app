@@ -21,7 +21,10 @@ import { Route as OrgsOrgIdProductsRouteImport } from './routes/orgs/$orgId/prod
 import { Route as OrgsOrgIdPageBuilderRouteImport } from './routes/orgs/$orgId/page-builder'
 import { Route as OrgsOrgIdCategoriesRouteImport } from './routes/orgs/$orgId/categories'
 import { Route as OrgsOrgIdAppsRouteImport } from './routes/orgs/$orgId/apps'
+import { Route as OrgsOrgIdStoresIndexRouteImport } from './routes/orgs/$orgId/stores/index'
 import { Route as OrgsOrgIdProductsIndexRouteImport } from './routes/orgs/$orgId/products/index'
+import { Route as OrgsOrgIdStoresNewRouteImport } from './routes/orgs/$orgId/stores/new'
+import { Route as OrgsOrgIdStoresStoreIdRouteImport } from './routes/orgs/$orgId/stores/$storeId'
 import { Route as OrgsOrgIdProductsNewRouteImport } from './routes/orgs/$orgId/products/new'
 import { Route as OrgsOrgIdProductsProductIdRouteImport } from './routes/orgs/$orgId/products/$productId'
 
@@ -85,10 +88,25 @@ const OrgsOrgIdAppsRoute = OrgsOrgIdAppsRouteImport.update({
   path: '/apps',
   getParentRoute: () => OrgsOrgIdRoute,
 } as any)
+const OrgsOrgIdStoresIndexRoute = OrgsOrgIdStoresIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OrgsOrgIdStoresRoute,
+} as any)
 const OrgsOrgIdProductsIndexRoute = OrgsOrgIdProductsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => OrgsOrgIdProductsRoute,
+} as any)
+const OrgsOrgIdStoresNewRoute = OrgsOrgIdStoresNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => OrgsOrgIdStoresRoute,
+} as any)
+const OrgsOrgIdStoresStoreIdRoute = OrgsOrgIdStoresStoreIdRouteImport.update({
+  id: '/$storeId',
+  path: '/$storeId',
+  getParentRoute: () => OrgsOrgIdStoresRoute,
 } as any)
 const OrgsOrgIdProductsNewRoute = OrgsOrgIdProductsNewRouteImport.update({
   id: '/new',
@@ -112,12 +130,15 @@ export interface FileRoutesByFullPath {
   '/orgs/$orgId/page-builder': typeof OrgsOrgIdPageBuilderRoute
   '/orgs/$orgId/products': typeof OrgsOrgIdProductsRouteWithChildren
   '/orgs/$orgId/settings': typeof OrgsOrgIdSettingsRoute
-  '/orgs/$orgId/stores': typeof OrgsOrgIdStoresRoute
+  '/orgs/$orgId/stores': typeof OrgsOrgIdStoresRouteWithChildren
   '/orgs/$orgId/theme': typeof OrgsOrgIdThemeRoute
   '/orgs/$orgId/': typeof OrgsOrgIdIndexRoute
   '/orgs/$orgId/products/$productId': typeof OrgsOrgIdProductsProductIdRoute
   '/orgs/$orgId/products/new': typeof OrgsOrgIdProductsNewRoute
+  '/orgs/$orgId/stores/$storeId': typeof OrgsOrgIdStoresStoreIdRoute
+  '/orgs/$orgId/stores/new': typeof OrgsOrgIdStoresNewRoute
   '/orgs/$orgId/products/': typeof OrgsOrgIdProductsIndexRoute
+  '/orgs/$orgId/stores/': typeof OrgsOrgIdStoresIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -127,12 +148,14 @@ export interface FileRoutesByTo {
   '/orgs/$orgId/categories': typeof OrgsOrgIdCategoriesRoute
   '/orgs/$orgId/page-builder': typeof OrgsOrgIdPageBuilderRoute
   '/orgs/$orgId/settings': typeof OrgsOrgIdSettingsRoute
-  '/orgs/$orgId/stores': typeof OrgsOrgIdStoresRoute
   '/orgs/$orgId/theme': typeof OrgsOrgIdThemeRoute
   '/orgs/$orgId': typeof OrgsOrgIdIndexRoute
   '/orgs/$orgId/products/$productId': typeof OrgsOrgIdProductsProductIdRoute
   '/orgs/$orgId/products/new': typeof OrgsOrgIdProductsNewRoute
+  '/orgs/$orgId/stores/$storeId': typeof OrgsOrgIdStoresStoreIdRoute
+  '/orgs/$orgId/stores/new': typeof OrgsOrgIdStoresNewRoute
   '/orgs/$orgId/products': typeof OrgsOrgIdProductsIndexRoute
+  '/orgs/$orgId/stores': typeof OrgsOrgIdStoresIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -145,12 +168,15 @@ export interface FileRoutesById {
   '/orgs/$orgId/page-builder': typeof OrgsOrgIdPageBuilderRoute
   '/orgs/$orgId/products': typeof OrgsOrgIdProductsRouteWithChildren
   '/orgs/$orgId/settings': typeof OrgsOrgIdSettingsRoute
-  '/orgs/$orgId/stores': typeof OrgsOrgIdStoresRoute
+  '/orgs/$orgId/stores': typeof OrgsOrgIdStoresRouteWithChildren
   '/orgs/$orgId/theme': typeof OrgsOrgIdThemeRoute
   '/orgs/$orgId/': typeof OrgsOrgIdIndexRoute
   '/orgs/$orgId/products/$productId': typeof OrgsOrgIdProductsProductIdRoute
   '/orgs/$orgId/products/new': typeof OrgsOrgIdProductsNewRoute
+  '/orgs/$orgId/stores/$storeId': typeof OrgsOrgIdStoresStoreIdRoute
+  '/orgs/$orgId/stores/new': typeof OrgsOrgIdStoresNewRoute
   '/orgs/$orgId/products/': typeof OrgsOrgIdProductsIndexRoute
+  '/orgs/$orgId/stores/': typeof OrgsOrgIdStoresIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -169,7 +195,10 @@ export interface FileRouteTypes {
     | '/orgs/$orgId/'
     | '/orgs/$orgId/products/$productId'
     | '/orgs/$orgId/products/new'
+    | '/orgs/$orgId/stores/$storeId'
+    | '/orgs/$orgId/stores/new'
     | '/orgs/$orgId/products/'
+    | '/orgs/$orgId/stores/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -179,12 +208,14 @@ export interface FileRouteTypes {
     | '/orgs/$orgId/categories'
     | '/orgs/$orgId/page-builder'
     | '/orgs/$orgId/settings'
-    | '/orgs/$orgId/stores'
     | '/orgs/$orgId/theme'
     | '/orgs/$orgId'
     | '/orgs/$orgId/products/$productId'
     | '/orgs/$orgId/products/new'
+    | '/orgs/$orgId/stores/$storeId'
+    | '/orgs/$orgId/stores/new'
     | '/orgs/$orgId/products'
+    | '/orgs/$orgId/stores'
   id:
     | '__root__'
     | '/'
@@ -201,7 +232,10 @@ export interface FileRouteTypes {
     | '/orgs/$orgId/'
     | '/orgs/$orgId/products/$productId'
     | '/orgs/$orgId/products/new'
+    | '/orgs/$orgId/stores/$storeId'
+    | '/orgs/$orgId/stores/new'
     | '/orgs/$orgId/products/'
+    | '/orgs/$orgId/stores/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -297,12 +331,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgsOrgIdAppsRouteImport
       parentRoute: typeof OrgsOrgIdRoute
     }
+    '/orgs/$orgId/stores/': {
+      id: '/orgs/$orgId/stores/'
+      path: '/'
+      fullPath: '/orgs/$orgId/stores/'
+      preLoaderRoute: typeof OrgsOrgIdStoresIndexRouteImport
+      parentRoute: typeof OrgsOrgIdStoresRoute
+    }
     '/orgs/$orgId/products/': {
       id: '/orgs/$orgId/products/'
       path: '/'
       fullPath: '/orgs/$orgId/products/'
       preLoaderRoute: typeof OrgsOrgIdProductsIndexRouteImport
       parentRoute: typeof OrgsOrgIdProductsRoute
+    }
+    '/orgs/$orgId/stores/new': {
+      id: '/orgs/$orgId/stores/new'
+      path: '/new'
+      fullPath: '/orgs/$orgId/stores/new'
+      preLoaderRoute: typeof OrgsOrgIdStoresNewRouteImport
+      parentRoute: typeof OrgsOrgIdStoresRoute
+    }
+    '/orgs/$orgId/stores/$storeId': {
+      id: '/orgs/$orgId/stores/$storeId'
+      path: '/$storeId'
+      fullPath: '/orgs/$orgId/stores/$storeId'
+      preLoaderRoute: typeof OrgsOrgIdStoresStoreIdRouteImport
+      parentRoute: typeof OrgsOrgIdStoresRoute
     }
     '/orgs/$orgId/products/new': {
       id: '/orgs/$orgId/products/new'
@@ -336,13 +391,29 @@ const OrgsOrgIdProductsRouteChildren: OrgsOrgIdProductsRouteChildren = {
 const OrgsOrgIdProductsRouteWithChildren =
   OrgsOrgIdProductsRoute._addFileChildren(OrgsOrgIdProductsRouteChildren)
 
+interface OrgsOrgIdStoresRouteChildren {
+  OrgsOrgIdStoresStoreIdRoute: typeof OrgsOrgIdStoresStoreIdRoute
+  OrgsOrgIdStoresNewRoute: typeof OrgsOrgIdStoresNewRoute
+  OrgsOrgIdStoresIndexRoute: typeof OrgsOrgIdStoresIndexRoute
+}
+
+const OrgsOrgIdStoresRouteChildren: OrgsOrgIdStoresRouteChildren = {
+  OrgsOrgIdStoresStoreIdRoute: OrgsOrgIdStoresStoreIdRoute,
+  OrgsOrgIdStoresNewRoute: OrgsOrgIdStoresNewRoute,
+  OrgsOrgIdStoresIndexRoute: OrgsOrgIdStoresIndexRoute,
+}
+
+const OrgsOrgIdStoresRouteWithChildren = OrgsOrgIdStoresRoute._addFileChildren(
+  OrgsOrgIdStoresRouteChildren,
+)
+
 interface OrgsOrgIdRouteChildren {
   OrgsOrgIdAppsRoute: typeof OrgsOrgIdAppsRoute
   OrgsOrgIdCategoriesRoute: typeof OrgsOrgIdCategoriesRoute
   OrgsOrgIdPageBuilderRoute: typeof OrgsOrgIdPageBuilderRoute
   OrgsOrgIdProductsRoute: typeof OrgsOrgIdProductsRouteWithChildren
   OrgsOrgIdSettingsRoute: typeof OrgsOrgIdSettingsRoute
-  OrgsOrgIdStoresRoute: typeof OrgsOrgIdStoresRoute
+  OrgsOrgIdStoresRoute: typeof OrgsOrgIdStoresRouteWithChildren
   OrgsOrgIdThemeRoute: typeof OrgsOrgIdThemeRoute
   OrgsOrgIdIndexRoute: typeof OrgsOrgIdIndexRoute
 }
@@ -353,7 +424,7 @@ const OrgsOrgIdRouteChildren: OrgsOrgIdRouteChildren = {
   OrgsOrgIdPageBuilderRoute: OrgsOrgIdPageBuilderRoute,
   OrgsOrgIdProductsRoute: OrgsOrgIdProductsRouteWithChildren,
   OrgsOrgIdSettingsRoute: OrgsOrgIdSettingsRoute,
-  OrgsOrgIdStoresRoute: OrgsOrgIdStoresRoute,
+  OrgsOrgIdStoresRoute: OrgsOrgIdStoresRouteWithChildren,
   OrgsOrgIdThemeRoute: OrgsOrgIdThemeRoute,
   OrgsOrgIdIndexRoute: OrgsOrgIdIndexRoute,
 }
