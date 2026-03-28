@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import { eq, and, or, ilike } from "drizzle-orm";
 import { db } from "../../lib/db";
-import { orgs, apps, categories, products, productVariants } from "@repo/db/schema";
+import { orgs, apps, categories, products, productVariants, stores } from "@repo/db/schema";
 import { resolveHomePage } from "../resolvers/home-page";
+import { resolveProductPageSections } from "../resolvers/product-page";
 import type { AppConfig } from "@repo/validators";
 
 const app = new Hono()
@@ -144,6 +145,63 @@ const app = new Hono()
 
     const sections = await resolveHomePage(pageLayout.sections, org.id);
     return c.json({ sections });
+  })
+
+  // SDUI — resolved product page
+  .get("/:slug/pages/product/:productSlug", async (c) => {
+    const { slug, productSlug } = c.req.param();
+
+    const org = await db.query.orgs.findFirst({
+      where: and(eq(orgs.slug, slug), eq(orgs.isActive, true)),
+    });
+    if (!org) return c.json({ error: "Store not found" }, 404);
+
+    const product = await db.query.products.findFirst({
+      where: and(
+        eq(products.orgId, org.id),
+        eq(products.slug, productSlug),
+        eq(products.isActive, true)
+      ),
+      with: { category: true, variants: true },
+    });
+    if (!product) return c.json({ error: "Product not found" }, 404);
+
+    const appConfig = await db.query.apps.findFirst({
+      where: eq(apps.orgId, org.id),
+      orderBy: (apps, { sql }) => [
+        sql`CASE WHEN ${apps.status} = 'live' THEN 0 ELSE 1 END`,
+      ],
+    });
+
+    const config = appConfig?.config as AppConfig | undefined;
+    const pageLayout = config?.pages?.product;
+
+    const sections = pageLayout?.sections?.length
+      ? await resolveProductPageSections(pageLayout.sections, {
+          orgId: org.id,
+          productId: product.id,
+          categoryId: product.categoryId,
+        })
+      : [];
+
+    return c.json({ product, sections });
+  })
+
+  // Physical store locations
+  .get("/:slug/stores", async (c) => {
+    const { slug } = c.req.param();
+
+    const org = await db.query.orgs.findFirst({
+      where: and(eq(orgs.slug, slug), eq(orgs.isActive, true)),
+    });
+    if (!org) return c.json({ error: "Store not found" }, 404);
+
+    const result = await db.query.stores.findMany({
+      where: and(eq(stores.orgId, org.id), eq(stores.isActive, true)),
+      orderBy: (s, { asc }) => [asc(s.sortOrder), asc(s.name)],
+    });
+
+    return c.json(result);
   });
 
 export { app as storeRoutes };

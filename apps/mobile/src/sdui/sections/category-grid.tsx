@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { router } from "expo-router";
 import type { ResolvedSection } from "@repo/validators";
 import { useTheme } from "../../theme";
 
@@ -24,7 +25,7 @@ export function CategoryGrid({ title, categories }: Props) {
       )}
       <View style={styles.grid}>
         {categories.map((cat) => (
-          <TouchableOpacity key={cat.id} style={styles.card} activeOpacity={0.7}>
+          <TouchableOpacity key={cat.id} style={styles.card} activeOpacity={0.7} onPress={() => router.push(`/category/${cat.slug}`)}>
             <View style={[styles.imageContainer, { borderRadius: imageRadius }]}>
               {cat.imageUrl ? (
                 <Image source={{ uri: cat.imageUrl }} style={styles.image} />

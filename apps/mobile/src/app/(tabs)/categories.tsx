@@ -39,7 +39,7 @@ export default function CategoriesScreen() {
             <TouchableOpacity
               style={styles.card}
               activeOpacity={0.7}
-              onPress={() => router.push("/(tabs)")}
+              onPress={() => router.push(`/category/${item.slug}`)}
             >
               <View style={styles.cardImage}>
                 {item.imageUrl ? (

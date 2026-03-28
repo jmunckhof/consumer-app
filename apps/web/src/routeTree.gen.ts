@@ -15,6 +15,7 @@ import { Route as OrgsIndexRouteImport } from './routes/orgs/index'
 import { Route as OrgsOrgIdRouteImport } from './routes/orgs/$orgId'
 import { Route as OrgsOrgIdIndexRouteImport } from './routes/orgs/$orgId/index'
 import { Route as OrgsOrgIdThemeRouteImport } from './routes/orgs/$orgId/theme'
+import { Route as OrgsOrgIdStoresRouteImport } from './routes/orgs/$orgId/stores'
 import { Route as OrgsOrgIdSettingsRouteImport } from './routes/orgs/$orgId/settings'
 import { Route as OrgsOrgIdProductsRouteImport } from './routes/orgs/$orgId/products'
 import { Route as OrgsOrgIdPageBuilderRouteImport } from './routes/orgs/$orgId/page-builder'
@@ -52,6 +53,11 @@ const OrgsOrgIdIndexRoute = OrgsOrgIdIndexRouteImport.update({
 const OrgsOrgIdThemeRoute = OrgsOrgIdThemeRouteImport.update({
   id: '/theme',
   path: '/theme',
+  getParentRoute: () => OrgsOrgIdRoute,
+} as any)
+const OrgsOrgIdStoresRoute = OrgsOrgIdStoresRouteImport.update({
+  id: '/stores',
+  path: '/stores',
   getParentRoute: () => OrgsOrgIdRoute,
 } as any)
 const OrgsOrgIdSettingsRoute = OrgsOrgIdSettingsRouteImport.update({
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/orgs/$orgId/page-builder': typeof OrgsOrgIdPageBuilderRoute
   '/orgs/$orgId/products': typeof OrgsOrgIdProductsRouteWithChildren
   '/orgs/$orgId/settings': typeof OrgsOrgIdSettingsRoute
+  '/orgs/$orgId/stores': typeof OrgsOrgIdStoresRoute
   '/orgs/$orgId/theme': typeof OrgsOrgIdThemeRoute
   '/orgs/$orgId/': typeof OrgsOrgIdIndexRoute
   '/orgs/$orgId/products/$productId': typeof OrgsOrgIdProductsProductIdRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/orgs/$orgId/categories': typeof OrgsOrgIdCategoriesRoute
   '/orgs/$orgId/page-builder': typeof OrgsOrgIdPageBuilderRoute
   '/orgs/$orgId/settings': typeof OrgsOrgIdSettingsRoute
+  '/orgs/$orgId/stores': typeof OrgsOrgIdStoresRoute
   '/orgs/$orgId/theme': typeof OrgsOrgIdThemeRoute
   '/orgs/$orgId': typeof OrgsOrgIdIndexRoute
   '/orgs/$orgId/products/$productId': typeof OrgsOrgIdProductsProductIdRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/orgs/$orgId/page-builder': typeof OrgsOrgIdPageBuilderRoute
   '/orgs/$orgId/products': typeof OrgsOrgIdProductsRouteWithChildren
   '/orgs/$orgId/settings': typeof OrgsOrgIdSettingsRoute
+  '/orgs/$orgId/stores': typeof OrgsOrgIdStoresRoute
   '/orgs/$orgId/theme': typeof OrgsOrgIdThemeRoute
   '/orgs/$orgId/': typeof OrgsOrgIdIndexRoute
   '/orgs/$orgId/products/$productId': typeof OrgsOrgIdProductsProductIdRoute
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/orgs/$orgId/page-builder'
     | '/orgs/$orgId/products'
     | '/orgs/$orgId/settings'
+    | '/orgs/$orgId/stores'
     | '/orgs/$orgId/theme'
     | '/orgs/$orgId/'
     | '/orgs/$orgId/products/$productId'
@@ -169,6 +179,7 @@ export interface FileRouteTypes {
     | '/orgs/$orgId/categories'
     | '/orgs/$orgId/page-builder'
     | '/orgs/$orgId/settings'
+    | '/orgs/$orgId/stores'
     | '/orgs/$orgId/theme'
     | '/orgs/$orgId'
     | '/orgs/$orgId/products/$productId'
@@ -185,6 +196,7 @@ export interface FileRouteTypes {
     | '/orgs/$orgId/page-builder'
     | '/orgs/$orgId/products'
     | '/orgs/$orgId/settings'
+    | '/orgs/$orgId/stores'
     | '/orgs/$orgId/theme'
     | '/orgs/$orgId/'
     | '/orgs/$orgId/products/$productId'
@@ -241,6 +253,13 @@ declare module '@tanstack/react-router' {
       path: '/theme'
       fullPath: '/orgs/$orgId/theme'
       preLoaderRoute: typeof OrgsOrgIdThemeRouteImport
+      parentRoute: typeof OrgsOrgIdRoute
+    }
+    '/orgs/$orgId/stores': {
+      id: '/orgs/$orgId/stores'
+      path: '/stores'
+      fullPath: '/orgs/$orgId/stores'
+      preLoaderRoute: typeof OrgsOrgIdStoresRouteImport
       parentRoute: typeof OrgsOrgIdRoute
     }
     '/orgs/$orgId/settings': {
@@ -323,6 +342,7 @@ interface OrgsOrgIdRouteChildren {
   OrgsOrgIdPageBuilderRoute: typeof OrgsOrgIdPageBuilderRoute
   OrgsOrgIdProductsRoute: typeof OrgsOrgIdProductsRouteWithChildren
   OrgsOrgIdSettingsRoute: typeof OrgsOrgIdSettingsRoute
+  OrgsOrgIdStoresRoute: typeof OrgsOrgIdStoresRoute
   OrgsOrgIdThemeRoute: typeof OrgsOrgIdThemeRoute
   OrgsOrgIdIndexRoute: typeof OrgsOrgIdIndexRoute
 }
@@ -333,6 +353,7 @@ const OrgsOrgIdRouteChildren: OrgsOrgIdRouteChildren = {
   OrgsOrgIdPageBuilderRoute: OrgsOrgIdPageBuilderRoute,
   OrgsOrgIdProductsRoute: OrgsOrgIdProductsRouteWithChildren,
   OrgsOrgIdSettingsRoute: OrgsOrgIdSettingsRoute,
+  OrgsOrgIdStoresRoute: OrgsOrgIdStoresRoute,
   OrgsOrgIdThemeRoute: OrgsOrgIdThemeRoute,
   OrgsOrgIdIndexRoute: OrgsOrgIdIndexRoute,
 }

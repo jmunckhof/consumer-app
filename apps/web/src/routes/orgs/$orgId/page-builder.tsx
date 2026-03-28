@@ -5,50 +5,37 @@ import { useTRPC } from "../../../utils/trpc";
 import { PageHeader } from "../../../components/page";
 import { SectionConfigForm } from "../../../components/sdui/section-forms";
 import type { SectionConfig, SectionType, AppConfig } from "@repo/validators";
-import { SECTION_TYPES, SECTION_TYPE_LABELS } from "@repo/validators";
+import {
+  HOME_SECTION_TYPES,
+  PRODUCT_SECTION_TYPES,
+  SECTION_TYPE_LABELS,
+} from "@repo/validators";
 
 export const Route = createFileRoute("/orgs/$orgId/page-builder")({
   component: PageBuilderPage,
 });
 
 const DEFAULT_CONFIGS: Record<SectionType, () => SectionConfig> = {
-  "store-header": () => ({
-    type: "store-header",
-    showStoreName: true,
-    showLogo: true,
-    showSearch: false,
-  }),
-  "hero-banner": () => ({
-    type: "hero-banner",
-    imageUrl: "https://placehold.co/800x400",
-    title: "Welcome",
-  }),
-  "category-grid": () => ({
-    type: "category-grid",
-    title: "Shop by Category",
-  }),
-  "product-carousel": () => ({
-    type: "product-carousel",
-    title: "Featured Products",
-  }),
-  "product-grid": () => ({
-    type: "product-grid",
-    title: "All Products",
-  }),
-  "text-block": () => ({
-    type: "text-block",
-    body: "Enter your text here.",
-  }),
-  "image-banner": () => ({
-    type: "image-banner",
-    imageUrl: "https://placehold.co/800x200",
-  }),
+  "store-header": () => ({ type: "store-header", showStoreName: true, showLogo: true, showSearch: false }),
+  "hero-banner": () => ({ type: "hero-banner", imageUrl: "https://placehold.co/800x400", title: "Welcome" }),
+  "category-grid": () => ({ type: "category-grid", title: "Shop by Category" }),
+  "product-carousel": () => ({ type: "product-carousel", title: "Featured Products" }),
+  "product-grid": () => ({ type: "product-grid", title: "All Products" }),
+  "text-block": () => ({ type: "text-block", body: "Enter your text here." }),
+  "image-banner": () => ({ type: "image-banner", imageUrl: "https://placehold.co/800x200" }),
+  "related-by-category": () => ({ type: "related-by-category", title: "More from this category" }),
+  "related-by-tag": () => ({ type: "related-by-tag", title: "More from this brand", tag: "brand" }),
+  "related-hand-picked": () => ({ type: "related-hand-picked", title: "You may also like", productSlugs: [] }),
+  "recently-viewed": () => ({ type: "recently-viewed", title: "Recently viewed" }),
 };
+
+type PageTab = "home" | "product";
 
 function PageBuilderPage() {
   const { orgId } = Route.useParams();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<PageTab>("home");
 
   const { data: apps, isLoading } = useQuery(
     trpc.app.list.queryOptions({ orgId })
@@ -56,24 +43,27 @@ function PageBuilderPage() {
 
   const app = apps?.[0];
   const config = (app?.config as AppConfig) ?? {};
-  const savedSections = config?.pages?.home?.sections ?? [];
 
-  const [sections, setSections] = useState<SectionConfig[]>([]);
+  const [homeSections, setHomeSections] = useState<SectionConfig[]>([]);
+  const [productSections, setProductSections] = useState<SectionConfig[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [showPicker, setShowPicker] = useState(false);
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
-    setSections(savedSections);
+    setHomeSections(config?.pages?.home?.sections ?? []);
+    setProductSections(config?.pages?.product?.sections ?? []);
     setDirty(false);
   }, [app?.id]);
+
+  const sections = activeTab === "home" ? homeSections : productSections;
+  const setSections = activeTab === "home" ? setHomeSections : setProductSections;
+  const allowedTypes = activeTab === "home" ? HOME_SECTION_TYPES : PRODUCT_SECTION_TYPES;
 
   const updateApp = useMutation(
     trpc.app.update.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: trpc.app.list.queryKey({ orgId }),
-        });
+        queryClient.invalidateQueries({ queryKey: trpc.app.list.queryKey({ orgId }) });
         setDirty(false);
       },
     })
@@ -87,15 +77,17 @@ function PageBuilderPage() {
       data: {
         config: {
           ...config,
-          pages: { home: { sections } },
+          pages: {
+            home: { sections: homeSections },
+            product: { sections: productSections },
+          },
         },
       },
     });
   }
 
   function addSection(type: SectionType) {
-    const newSection = DEFAULT_CONFIGS[type]();
-    setSections([...sections, newSection]);
+    setSections([...sections, DEFAULT_CONFIGS[type]()]);
     setExpandedIndex(sections.length);
     setShowPicker(false);
     setDirty(true);
@@ -124,21 +116,14 @@ function PageBuilderPage() {
     setDirty(true);
   }
 
-  if (isLoading) {
-    return <p className="text-sm text-zinc-500">Loading...</p>;
-  }
+  if (isLoading) return <p className="text-sm text-zinc-500">Loading...</p>;
 
   if (!app) {
     return (
       <>
-        <PageHeader
-          title="Page Builder"
-          description="Create an app first to configure its home page."
-        />
+        <PageHeader title="Page Builder" description="Create an app first." />
         <div className="mt-8 rounded-lg border border-dashed border-zinc-300 py-12 text-center dark:border-zinc-700">
-          <p className="text-sm text-zinc-500">
-            No app found. Create an app in the Apps section first.
-          </p>
+          <p className="text-sm text-zinc-500">No app found. Create one in the Apps section first.</p>
         </div>
       </>
     );
@@ -148,45 +133,59 @@ function PageBuilderPage() {
     <>
       <PageHeader
         title="Page Builder"
-        description={`Configure the home page for "${app.name}". Changes are applied when you save.`}
+        description={`Configure pages for "${app.name}".`}
         actions={
           <div className="flex items-center gap-3">
             {dirty && (
-              <span className="text-xs text-amber-600 dark:text-amber-400">
-                Unsaved changes
-              </span>
+              <span className="text-xs text-amber-600 dark:text-amber-400">Unsaved changes</span>
             )}
             <button
               onClick={handleSave}
               disabled={updateApp.isPending || !dirty}
               className="rounded-lg border border-transparent bg-zinc-900 px-3 py-2 text-sm/6 font-semibold text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-600 dark:hover:bg-zinc-500"
             >
-              {updateApp.isPending ? "Saving..." : "Save Page"}
+              {updateApp.isPending ? "Saving..." : "Save All Pages"}
             </button>
           </div>
         }
       />
 
-      <div className="mt-8 space-y-3">
+      {/* Tabs */}
+      <div className="mt-6 flex gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
+        {(["home", "product"] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => {
+              setActiveTab(tab);
+              setExpandedIndex(null);
+              setShowPicker(false);
+            }}
+            className={`flex-1 rounded-md px-3 py-2 text-sm/6 font-medium transition-colors ${
+              activeTab === tab
+                ? "bg-white text-zinc-950 shadow-sm dark:bg-zinc-700 dark:text-white"
+                : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
+            }`}
+          >
+            {tab === "home" ? "Home Page" : "Product Page"}
+          </button>
+        ))}
+      </div>
+
+      {/* Section list */}
+      <div className="mt-6 space-y-3">
         {sections.length === 0 && !showPicker && (
           <div className="rounded-lg border border-dashed border-zinc-300 py-12 text-center dark:border-zinc-700">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              No sections yet. Add sections to build the home page.
+              No sections yet. Add sections to build the {activeTab === "home" ? "home" : "product"} page.
             </p>
           </div>
         )}
 
         {sections.map((section, index) => (
-          <div
-            key={index}
-            className="rounded-lg border border-zinc-950/10 dark:border-white/10"
-          >
-            {/* Section header */}
+          <div key={index} className="rounded-lg border border-zinc-950/10 dark:border-white/10">
             <div
               className="flex cursor-pointer items-center justify-between px-4 py-3 hover:bg-zinc-950/[2.5%] dark:hover:bg-white/[2.5%]"
-              onClick={() =>
-                setExpandedIndex(expandedIndex === index ? null : index)
-              }
+              onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
             >
               <div className="flex items-center gap-3">
                 <span className="inline-flex items-center rounded-md bg-zinc-600/10 px-1.5 py-0.5 text-xs/5 font-medium text-zinc-700 dark:bg-white/5 dark:text-zinc-400">
@@ -196,55 +195,18 @@ function PageBuilderPage() {
                   {SECTION_TYPE_LABELS[section.type]}
                 </span>
                 {"title" in section && section.title && (
-                  <span className="text-sm text-zinc-500 dark:text-zinc-400">
-                    — {section.title}
-                  </span>
+                  <span className="text-sm text-zinc-500 dark:text-zinc-400">— {section.title}</span>
                 )}
               </div>
               <div className="flex items-center gap-1">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    moveSection(index, -1);
-                  }}
-                  disabled={index === 0}
-                  className="rounded p-1 text-zinc-400 hover:text-zinc-700 disabled:opacity-30 dark:hover:text-zinc-300"
-                  title="Move up"
-                >
-                  ↑
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    moveSection(index, 1);
-                  }}
-                  disabled={index === sections.length - 1}
-                  className="rounded p-1 text-zinc-400 hover:text-zinc-700 disabled:opacity-30 dark:hover:text-zinc-300"
-                  title="Move down"
-                >
-                  ↓
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeSection(index);
-                  }}
-                  className="ml-2 rounded p-1 text-red-400 hover:text-red-600"
-                  title="Remove"
-                >
-                  ×
-                </button>
+                <button onClick={(e) => { e.stopPropagation(); moveSection(index, -1); }} disabled={index === 0} className="rounded p-1 text-zinc-400 hover:text-zinc-700 disabled:opacity-30" title="Move up">↑</button>
+                <button onClick={(e) => { e.stopPropagation(); moveSection(index, 1); }} disabled={index === sections.length - 1} className="rounded p-1 text-zinc-400 hover:text-zinc-700 disabled:opacity-30" title="Move down">↓</button>
+                <button onClick={(e) => { e.stopPropagation(); removeSection(index); }} className="ml-2 rounded p-1 text-red-400 hover:text-red-600" title="Remove">×</button>
               </div>
             </div>
-
-            {/* Expanded config form */}
             {expandedIndex === index && (
               <div className="border-t border-zinc-950/5 px-4 py-4 dark:border-white/5">
-                <SectionConfigForm
-                  value={section}
-                  onChange={(v) => updateSection(index, v)}
-                  orgId={orgId}
-                />
+                <SectionConfigForm value={section} onChange={(v) => updateSection(index, v)} orgId={orgId} />
               </div>
             )}
           </div>
@@ -255,11 +217,11 @@ function PageBuilderPage() {
       <div className="mt-4">
         {showPicker ? (
           <div className="rounded-lg border border-zinc-950/10 p-4 dark:border-white/10">
-            <h3 className="text-sm/6 font-semibold text-zinc-950 dark:text-white mb-3">
+            <h3 className="mb-3 text-sm/6 font-semibold text-zinc-950 dark:text-white">
               Choose a section type
             </h3>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {SECTION_TYPES.map((type) => (
+              {allowedTypes.map((type) => (
                 <button
                   key={type}
                   onClick={() => addSection(type)}
@@ -269,10 +231,7 @@ function PageBuilderPage() {
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => setShowPicker(false)}
-              className="mt-3 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400"
-            >
+            <button onClick={() => setShowPicker(false)} className="mt-3 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400">
               Cancel
             </button>
           </div>

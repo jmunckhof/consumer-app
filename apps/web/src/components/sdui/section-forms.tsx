@@ -11,6 +11,10 @@ import type {
   ProductGridConfig,
   TextBlockConfig,
   ImageBannerConfig,
+  RelatedByCategoryConfig,
+  RelatedByTagConfig,
+  RelatedHandPickedConfig,
+  RecentlyViewedConfig,
 } from "@repo/validators";
 
 // ---------------------------------------------------------------------------
@@ -300,6 +304,128 @@ function ImageBannerForm({
 }
 
 // ---------------------------------------------------------------------------
+// Product page section forms
+// ---------------------------------------------------------------------------
+
+function RelatedByCategoryForm({
+  value,
+  onChange,
+}: {
+  value: RelatedByCategoryConfig;
+  onChange: (v: RelatedByCategoryConfig) => void;
+}) {
+  return (
+    <FieldGroup>
+      <Field label="Title" description="e.g. 'More from this category'">
+        <input
+          value={value.title ?? ""}
+          onChange={(e) => onChange({ ...value, title: e.target.value || undefined })}
+          placeholder="More from this category"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <Field label="Max items">
+        <input type="number" min="1" max="20" value={value.maxItems ?? 8} onChange={(e) => onChange({ ...value, maxItems: Number(e.target.value) || 8 })} className="w-32 rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white" />
+      </Field>
+    </FieldGroup>
+  );
+}
+
+function RelatedByTagForm({
+  value,
+  onChange,
+}: {
+  value: RelatedByTagConfig;
+  onChange: (v: RelatedByTagConfig) => void;
+}) {
+  return (
+    <FieldGroup>
+      <Field label="Title">
+        <input
+          value={value.title ?? ""}
+          onChange={(e) => onChange({ ...value, title: e.target.value || undefined })}
+          placeholder="More from this brand"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <Field label="Tag / Brand" description="Products matching this keyword in name or slug.">
+        <input
+          value={value.tag}
+          onChange={(e) => onChange({ ...value, tag: e.target.value })}
+          required
+          placeholder="nike"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <Field label="Max items">
+        <input type="number" min="1" max="20" value={value.maxItems ?? 8} onChange={(e) => onChange({ ...value, maxItems: Number(e.target.value) || 8 })} className="w-32 rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white" />
+      </Field>
+    </FieldGroup>
+  );
+}
+
+function RelatedHandPickedForm({
+  value,
+  onChange,
+}: {
+  value: RelatedHandPickedConfig;
+  onChange: (v: RelatedHandPickedConfig) => void;
+}) {
+  return (
+    <FieldGroup>
+      <Field label="Title">
+        <input
+          value={value.title ?? ""}
+          onChange={(e) => onChange({ ...value, title: e.target.value || undefined })}
+          placeholder="You may also like"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <Field label="Product Slugs" description="Comma-separated product slugs to display.">
+        <input
+          value={(value.productSlugs ?? []).join(", ")}
+          onChange={(e) =>
+            onChange({
+              ...value,
+              productSlugs: e.target.value
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean),
+            })
+          }
+          placeholder="classic-tee, summer-shorts, sneakers"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+    </FieldGroup>
+  );
+}
+
+function RecentlyViewedForm({
+  value,
+  onChange,
+}: {
+  value: RecentlyViewedConfig;
+  onChange: (v: RecentlyViewedConfig) => void;
+}) {
+  return (
+    <FieldGroup>
+      <Field label="Title">
+        <input
+          value={value.title ?? ""}
+          onChange={(e) => onChange({ ...value, title: e.target.value || undefined })}
+          placeholder="Recently viewed"
+          className="w-full rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 placeholder:text-zinc-500 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white"
+        />
+      </Field>
+      <Field label="Max items">
+        <input type="number" min="1" max="20" value={value.maxItems ?? 10} onChange={(e) => onChange({ ...value, maxItems: Number(e.target.value) || 10 })} className="w-32 rounded-lg border border-zinc-950/10 bg-transparent px-3 py-2 text-sm/6 text-zinc-950 hover:border-zinc-950/20 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:border-white/10 dark:text-white" />
+      </Field>
+    </FieldGroup>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Exhaustive form dispatcher
 // ---------------------------------------------------------------------------
 
@@ -321,6 +447,10 @@ const SECTION_FORMS: {
   "product-grid": ProductGridForm as any,
   "text-block": TextBlockForm as any,
   "image-banner": ImageBannerForm as any,
+  "related-by-category": RelatedByCategoryForm as any,
+  "related-by-tag": RelatedByTagForm as any,
+  "related-hand-picked": RelatedHandPickedForm as any,
+  "recently-viewed": RecentlyViewedForm as any,
 };
 
 export function SectionConfigForm({

@@ -3,6 +3,7 @@ export * from "./apps";
 export * from "./categories";
 export * from "./products";
 export * from "./product-variants";
+export * from "./stores";
 export * from "./admin-auth";
 export * from "./consumer-auth";
 export * from "./relations";

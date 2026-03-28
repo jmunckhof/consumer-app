@@ -5,6 +5,7 @@ import {
   fetchProducts,
   fetchProduct,
   fetchHomePage,
+  fetchProductPage,
 } from "../api";
 
 // Query key factory
@@ -15,6 +16,8 @@ export const storeKeys = {
     [...storeKeys.all(slug), "products", opts?.categoryId ?? "all", opts?.search ?? ""] as const,
   product: (slug: string, productSlug: string) =>
     [...storeKeys.all(slug), "product", productSlug] as const,
+  productPage: (slug: string, productSlug: string) =>
+    [...storeKeys.all(slug), "pages", "product", productSlug] as const,
   homePage: (slug: string) => [...storeKeys.all(slug), "pages", "home"] as const,
 };
 
@@ -80,5 +83,15 @@ export function useHomePage() {
     queryFn: () => fetchHomePage(store!.slug),
     enabled: !!store,
     staleTime: 60 * 1000,
+  });
+}
+
+export function useProductPage(productSlug: string) {
+  const { store } = useStore();
+  return useQuery({
+    queryKey: storeKeys.productPage(store?.slug ?? "", productSlug),
+    queryFn: () => fetchProductPage(store!.slug, productSlug),
+    enabled: !!store && !!productSlug,
+    staleTime: 2 * 60 * 1000,
   });
 }

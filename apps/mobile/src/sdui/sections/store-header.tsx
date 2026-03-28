@@ -1,64 +1,69 @@
 import React from "react";
-import { View, Text, Image, TextInput, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { router } from "expo-router";
 import type { ResolvedSection } from "@repo/validators";
+import { useStore } from "../../store-context";
 import { useTheme } from "../../theme";
 
 type Props = Extract<ResolvedSection, { type: "store-header" }>;
 
-export function StoreHeader({
-  storeName,
-  logoUrl,
-  subtitle,
-  showSearch,
-  showLogo,
-}: Props) {
+function getOpenStatus(
+  openingHours: { day: string; open: string; close: string; closed?: boolean }[]
+): { isOpen: boolean; label: string } {
+  const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  const now = new Date();
+  const dayName = days[now.getDay()];
+  const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const today = openingHours.find((h) => h.day === dayName);
+  if (!today || today.closed) return { isOpen: false, label: "Closed today" };
+  if (time >= today.open && time < today.close) return { isOpen: true, label: `Closes ${today.close}` };
+  if (time < today.open) return { isOpen: false, label: `Opens ${today.open}` };
+  return { isOpen: false, label: "Closed" };
+}
+
+export function StoreHeader({ storeName, subtitle, showSearch }: Props) {
   const { global } = useTheme();
+  const { selectedLocation } = useStore();
+
+  const openStatus = selectedLocation?.openingHours?.length
+    ? getOpenStatus(selectedLocation.openingHours)
+    : null;
+
+  const displayName = selectedLocation?.name ?? storeName;
 
   return (
     <View style={[styles.container, { backgroundColor: global.primaryColor }]}>
-      <View style={styles.row}>
-        {showLogo && logoUrl && (
-          <Image source={{ uri: logoUrl }} style={styles.logo} />
-        )}
-        {showLogo && !logoUrl && (
-          <View style={styles.logoPlaceholder}>
-            <Text style={styles.logoText}>{storeName.charAt(0)}</Text>
-          </View>
-        )}
-        <View style={styles.textContainer}>
-          <Text
-            style={[
-              styles.storeName,
-              {
-                fontSize: global.headingSize,
-                color: global.textOnPrimary,
-              },
-            ]}
-          >
-            {storeName}
-          </Text>
-          {subtitle && (
-            <Text
-              style={[
-                styles.subtitle,
-                {
-                  fontSize: global.bodySize - 1,
-                  color: global.textOnPrimary,
-                  opacity: 0.8,
-                },
-              ]}
-            >
-              {subtitle}
-            </Text>
-          )}
+      {subtitle && (
+        <Text style={styles.contextLine}>{subtitle}</Text>
+      )}
+
+      <TouchableOpacity
+        style={styles.nameRow}
+        onPress={() => router.push("/location-picker" as any)}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.storeName} numberOfLines={1}>
+          {displayName}
+        </Text>
+        <Text style={styles.chevron}>▾</Text>
+      </TouchableOpacity>
+
+      {selectedLocation && openStatus ? (
+        <View style={styles.statusRow}>
+          <View style={[styles.statusDot, { backgroundColor: openStatus.isOpen ? "#4ade80" : "#f87171" }]} />
+          <Text style={styles.statusText}>{openStatus.label}</Text>
         </View>
-      </View>
+      ) : !selectedLocation ? (
+        <TouchableOpacity onPress={() => router.push("/location-picker" as any)}>
+          <Text style={styles.selectHint}>Tap to select your store ›</Text>
+        </TouchableOpacity>
+      ) : null}
 
       {showSearch && (
-        <View style={styles.searchContainer}>
+        <View style={styles.searchWrap}>
           <TextInput
             placeholder="Search products..."
-            placeholderTextColor="rgba(0,0,0,0.4)"
+            placeholderTextColor="rgba(0,0,0,0.35)"
             style={[styles.searchInput, { borderRadius: global.borderRadius }]}
           />
         </View>
@@ -68,51 +73,15 @@ export function StoreHeader({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: 60,
-    paddingBottom: 16,
-    paddingHorizontal: 20,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  logo: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-  },
-  logoPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoText: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#fff",
-  },
-  textContainer: {
-    flex: 1,
-  },
-  storeName: {
-    fontWeight: "700",
-  },
-  subtitle: {
-    marginTop: 2,
-  },
-  searchContainer: {
-    marginTop: 14,
-  },
-  searchInput: {
-    backgroundColor: "rgba(255,255,255,0.9)",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 15,
-    color: "#1A1A1A",
-  },
+  container: { paddingTop: 64, paddingBottom: 24, paddingHorizontal: 20 },
+  contextLine: { fontSize: 13, fontWeight: "500", color: "rgba(255,255,255,0.7)", marginBottom: 2 },
+  nameRow: { flexDirection: "row", alignItems: "baseline", gap: 6 },
+  storeName: { fontSize: 28, fontWeight: "800", color: "#fff", flexShrink: 1 },
+  chevron: { fontSize: 16, color: "rgba(255,255,255,0.5)" },
+  statusRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 6 },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  statusText: { fontSize: 14, fontWeight: "500", color: "rgba(255,255,255,0.85)" },
+  selectHint: { fontSize: 13, fontWeight: "500", color: "rgba(255,255,255,0.5)", marginTop: 4 },
+  searchWrap: { marginTop: 18 },
+  searchInput: { backgroundColor: "rgba(255,255,255,0.92)", paddingHorizontal: 16, paddingVertical: 13, fontSize: 15, color: "#1A1A1A" },
 });

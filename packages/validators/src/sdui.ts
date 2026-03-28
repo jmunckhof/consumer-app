@@ -63,6 +63,32 @@ export const imageBannerConfigSchema = z.object({
   action: sduiActionSchema.optional(),
 });
 
+// Product-page specific sections
+export const relatedByCategoryConfigSchema = z.object({
+  type: z.literal("related-by-category"),
+  title: z.string().max(100).optional(),
+  maxItems: z.number().int().min(1).max(20).optional(),
+});
+
+export const relatedByTagConfigSchema = z.object({
+  type: z.literal("related-by-tag"),
+  title: z.string().max(100).optional(),
+  tag: z.string().min(1).max(50),
+  maxItems: z.number().int().min(1).max(20).optional(),
+});
+
+export const relatedHandPickedConfigSchema = z.object({
+  type: z.literal("related-hand-picked"),
+  title: z.string().max(100).optional(),
+  productSlugs: z.array(z.string()).min(1).max(20),
+});
+
+export const recentlyViewedConfigSchema = z.object({
+  type: z.literal("recently-viewed"),
+  title: z.string().max(100).optional(),
+  maxItems: z.number().int().min(1).max(20).optional(),
+});
+
 export const sectionConfigSchema = z.discriminatedUnion("type", [
   storeHeaderConfigSchema,
   heroBannerConfigSchema,
@@ -71,6 +97,10 @@ export const sectionConfigSchema = z.discriminatedUnion("type", [
   productGridConfigSchema,
   textBlockConfigSchema,
   imageBannerConfigSchema,
+  relatedByCategoryConfigSchema,
+  relatedByTagConfigSchema,
+  relatedHandPickedConfigSchema,
+  recentlyViewedConfigSchema,
 ]);
 
 export const pageLayoutSchema = z.object({
@@ -145,6 +175,31 @@ export const resolvedImageBannerSchema = z.object({
   action: sduiActionSchema.optional(),
 });
 
+// Product-page resolved sections
+export const resolvedRelatedByCategorySchema = z.object({
+  type: z.literal("related-by-category"),
+  title: z.string().optional(),
+  products: z.array(resolvedProductSchema),
+});
+
+export const resolvedRelatedByTagSchema = z.object({
+  type: z.literal("related-by-tag"),
+  title: z.string().optional(),
+  products: z.array(resolvedProductSchema),
+});
+
+export const resolvedRelatedHandPickedSchema = z.object({
+  type: z.literal("related-hand-picked"),
+  title: z.string().optional(),
+  products: z.array(resolvedProductSchema),
+});
+
+export const resolvedRecentlyViewedSchema = z.object({
+  type: z.literal("recently-viewed"),
+  title: z.string().optional(),
+  products: z.array(resolvedProductSchema),
+});
+
 export const resolvedSectionSchema = z.discriminatedUnion("type", [
   resolvedStoreHeaderSchema,
   resolvedHeroBannerSchema,
@@ -153,6 +208,10 @@ export const resolvedSectionSchema = z.discriminatedUnion("type", [
   resolvedProductGridSchema,
   resolvedTextBlockSchema,
   resolvedImageBannerSchema,
+  resolvedRelatedByCategorySchema,
+  resolvedRelatedByTagSchema,
+  resolvedRelatedHandPickedSchema,
+  resolvedRecentlyViewedSchema,
 ]);
 
 export const resolvedPageSchema = z.object({
@@ -179,6 +238,10 @@ export type ProductCarouselConfig = z.infer<typeof productCarouselConfigSchema>;
 export type ProductGridConfig = z.infer<typeof productGridConfigSchema>;
 export type TextBlockConfig = z.infer<typeof textBlockConfigSchema>;
 export type ImageBannerConfig = z.infer<typeof imageBannerConfigSchema>;
+export type RelatedByCategoryConfig = z.infer<typeof relatedByCategoryConfigSchema>;
+export type RelatedByTagConfig = z.infer<typeof relatedByTagConfigSchema>;
+export type RelatedHandPickedConfig = z.infer<typeof relatedHandPickedConfigSchema>;
+export type RecentlyViewedConfig = z.infer<typeof recentlyViewedConfigSchema>;
 
 // Section type literal union (useful for switch/maps)
 export type SectionType = SectionConfig["type"];
@@ -192,7 +255,31 @@ export const SECTION_TYPES = [
   "product-grid",
   "text-block",
   "image-banner",
+  "related-by-category",
+  "related-by-tag",
+  "related-hand-picked",
+  "recently-viewed",
 ] as const satisfies readonly SectionType[];
+
+// Home page section types (for admin picker)
+export const HOME_SECTION_TYPES = [
+  "store-header",
+  "hero-banner",
+  "category-grid",
+  "product-carousel",
+  "product-grid",
+  "text-block",
+  "image-banner",
+] as const;
+
+// Product page section types (for admin picker)
+export const PRODUCT_SECTION_TYPES = [
+  "related-by-category",
+  "related-by-tag",
+  "related-hand-picked",
+  "recently-viewed",
+  "text-block",
+] as const;
 
 export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
   "store-header": "Store Header",
@@ -202,4 +289,8 @@ export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
   "product-grid": "Product Grid",
   "text-block": "Text Block",
   "image-banner": "Image Banner",
+  "related-by-category": "Related by Category",
+  "related-by-tag": "Related by Tag/Brand",
+  "related-hand-picked": "Hand-picked Products",
+  "recently-viewed": "Recently Viewed",
 };

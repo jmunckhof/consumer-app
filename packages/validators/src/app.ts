@@ -13,7 +13,8 @@ export const appConfigSchema = z.object({
     .optional(),
   pages: z
     .object({
-      home: pageLayoutSchema,
+      home: pageLayoutSchema.optional(),
+      product: pageLayoutSchema.optional(),
     })
     .optional(),
 });

@@ -91,10 +91,57 @@ export async function fetchProduct(slug: string, productSlug: string) {
   }>;
 }
 
+export async function fetchStoreLocations(slug: string) {
+  const res = await fetch(`${API_BASE}/api/store/${slug}/stores`);
+  if (!res.ok) throw new Error("Failed to load store locations");
+  return res.json() as Promise<
+    {
+      id: string;
+      name: string;
+      slug: string;
+      address: string;
+      city: string;
+      postalCode: string | null;
+      country: string;
+      phone: string | null;
+      email: string | null;
+      openingHours: { day: string; open: string; close: string; closed?: boolean }[];
+      isActive: boolean;
+    }[]
+  >;
+}
+
 export async function fetchHomePage(slug: string) {
   const res = await fetch(`${API_BASE}/api/store/${slug}/pages/home`);
   if (!res.ok) throw new Error("Failed to load home page");
   return res.json() as Promise<{
+    sections: import("@repo/validators").ResolvedSection[];
+  }>;
+}
+
+export async function fetchProductPage(slug: string, productSlug: string) {
+  const res = await fetch(
+    `${API_BASE}/api/store/${slug}/pages/product/${productSlug}`
+  );
+  if (!res.ok) throw new Error("Failed to load product page");
+  return res.json() as Promise<{
+    product: {
+      id: string;
+      name: string;
+      slug: string;
+      description: string | null;
+      images: { url: string; alt?: string }[];
+      priceInCents: number;
+      compareAtPriceInCents: number | null;
+      category: { id: string; name: string } | null;
+      variants: {
+        id: string;
+        name: string;
+        optionName: string;
+        optionValue: string;
+        priceInCents: number | null;
+      }[];
+    };
     sections: import("@repo/validators").ResolvedSection[];
   }>;
 }

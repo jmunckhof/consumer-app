@@ -378,6 +378,21 @@ function OrgSidebarBody({
         >
           Categories
         </SidebarLink>
+        <SidebarLink
+          to={`${base}/stores` as any}
+          current={pathname.startsWith(`${base}/stores`)}
+          icon={
+            <svg viewBox="0 0 20 20" fill="currentColor" className="size-5">
+              <path
+                fillRule="evenodd"
+                d="M1 2.75A.75.75 0 0 1 1.75 2h16.5a.75.75 0 0 1 0 1.5H18v8.75A2.75 2.75 0 0 1 15.25 15h-1.072l.798 3.06a.75.75 0 0 1-1.452.38L13.41 18H6.59l-.114.44a.75.75 0 0 1-1.452-.38L5.822 15H4.75A2.75 2.75 0 0 1 2 12.25V3.5h-.25A.75.75 0 0 1 1 2.75ZM7.373 15l-.391 1.5h6.037l-.392-1.5H7.373Zm7.49-8.931a.75.75 0 0 1-.112 1.055l-3.5 2.8a.75.75 0 0 1-1.056-.124l-1.5-2a.75.75 0 1 1 1.2-.9l1.012 1.349 2.9-2.32a.75.75 0 0 1 1.056.14Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          }
+        >
+          Stores
+        </SidebarLink>
       </div>
 
       <div className="mt-8 flex flex-col gap-0.5">

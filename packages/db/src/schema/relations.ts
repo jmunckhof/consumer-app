@@ -4,10 +4,12 @@ import { apps } from "./apps";
 import { categories } from "./categories";
 import { products } from "./products";
 import { productVariants } from "./product-variants";
+import { stores } from "./stores";
 
 export const orgsRelations = relations(orgs, ({ many }) => ({
   apps: many(apps),
   categories: many(categories),
+  stores: many(stores),
   products: many(products),
 }));
 
@@ -47,3 +49,10 @@ export const productVariantsRelations = relations(
     }),
   })
 );
+
+export const storesRelations = relations(stores, ({ one }) => ({
+  org: one(orgs, {
+    fields: [stores.orgId],
+    references: [orgs.id],
+  }),
+}));

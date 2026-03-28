@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,9 @@ import {
 import { useLocalSearchParams, router } from "expo-router";
 import { useStore } from "../../store-context";
 import { useTheme } from "../../theme";
-import { useProduct } from "../../hooks/use-store-queries";
+import { useProductPage } from "../../hooks/use-store-queries";
+import { addToRecentlyViewed } from "../../hooks/use-recently-viewed";
+import { SDUISections } from "../../sdui/renderer";
 import { formatPrice } from "../../format";
 
 const { width } = Dimensions.get("window");
@@ -35,11 +37,20 @@ type Product = {
 
 export default function ProductScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const { currency } = useStore();
+  const { store, currency } = useStore();
   const { global: t } = useTheme();
-  const { data: product, isLoading: loading } = useProduct(slug ?? "");
+  const { data, isLoading: loading } = useProductPage(slug ?? "");
+  const product = data?.product;
+  const sections = data?.sections ?? [];
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [activeImage, setActiveImage] = useState(0);
+
+  // Track recently viewed
+  useEffect(() => {
+    if (store && slug) {
+      addToRecentlyViewed(store.slug, slug);
+    }
+  }, [store?.slug, slug]);
 
   if (loading) {
     return (
@@ -166,6 +177,13 @@ export default function ProductScreen() {
             </View>
           )}
         </View>
+
+        {/* SDUI sections (related products, recently viewed, etc.) */}
+        {sections.length > 0 && (
+          <View style={{ marginTop: 16 }}>
+            <SDUISections sections={sections} />
+          </View>
+        )}
       </ScrollView>
     </View>
   );

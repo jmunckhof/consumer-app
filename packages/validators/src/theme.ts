@@ -6,7 +6,7 @@ import { z } from "zod";
 
 export const globalThemeSchema = z.object({
   // Colors
-  primaryColor: z.string().default("#000000"),
+  primaryColor: z.string().default("#2563EB"),
   secondaryColor: z.string().default("#FFFFFF"),
   backgroundColor: z.string().default("#F5F5F5"),
   surfaceColor: z.string().default("#FFFFFF"),
@@ -97,7 +97,7 @@ export type AppTheme = z.infer<typeof appThemeSchema>;
 // ---------------------------------------------------------------------------
 
 export const DEFAULT_GLOBAL_THEME: GlobalTheme = {
-  primaryColor: "#000000",
+  primaryColor: "#2563EB",
   secondaryColor: "#FFFFFF",
   backgroundColor: "#F5F5F5",
   surfaceColor: "#FFFFFF",

@@ -154,6 +154,12 @@ const resolvers: {
     alt: config.alt,
     action: config.action,
   }),
+
+  // Product-page-only sections — no-op on home page
+  "related-by-category": async () => ({ type: "text-block" as const, body: "" }),
+  "related-by-tag": async () => ({ type: "text-block" as const, body: "" }),
+  "related-hand-picked": async () => ({ type: "text-block" as const, body: "" }),
+  "recently-viewed": async () => ({ type: "text-block" as const, body: "" }),
 };
 
 // ---------------------------------------------------------------------------

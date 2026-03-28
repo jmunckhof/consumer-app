@@ -15,6 +15,22 @@ export default function RootLayout() {
             <Stack.Screen name="index" />
             <Stack.Screen name="(tabs)" />
             <Stack.Screen
+              name="location-picker"
+              options={{
+                headerShown: true,
+                headerTitle: "Select Store",
+                headerBackTitle: "Back",
+                presentation: "modal",
+              }}
+            />
+            <Stack.Screen
+              name="category/[slug]"
+              options={{
+                headerShown: true,
+                headerBackTitle: "Back",
+              }}
+            />
+            <Stack.Screen
               name="product/[slug]"
               options={{
                 headerShown: true,
